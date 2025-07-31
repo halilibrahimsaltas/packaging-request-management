@@ -1,21 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Expose } from 'class-transformer';
-import { IsString } from 'class-validator';
 
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
-  @Column()
-  @IsString()
+  @Column({ type: 'varchar', length: 100 })
   name: string;
 
   @Column({ type: 'text' })
   type: string;
 
-  @Column({ default: true })
-  @Expose()
+  @Column({ type: 'boolean', default: true })
   isActive: boolean;
-
 }
