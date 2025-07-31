@@ -7,6 +7,7 @@ import { mapOrderToDto } from './mappers/order.mapper';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
 import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
+import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
 
@@ -30,7 +31,8 @@ export class OrdersController {
   }
 
   @Get('customer/:customerId')
-  @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
+  @Roles(UserRole.ADMIN)
   async findByCustomer(
     @Param('customerId') customerId: string,
     @Query() paginationParams: PaginationParams
@@ -50,12 +52,16 @@ export class OrdersController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
+  @Roles(UserRole.ADMIN)
   async findOne(@Param('id') id: string): Promise<OrderResponseDto> {
     const order = await this.ordersService.findOne(+id);
     return mapOrderToDto(order);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
+  @Roles(UserRole.ADMIN)
   async update(
     @Param('id') id: string, 
     @Body() updateOrderDto: UpdateOrderDto
@@ -65,6 +71,8 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
+  @Roles(UserRole.ADMIN)
   async remove(@Param('id') id: string): Promise<{ message: string }> {
     return this.ordersService.remove(+id);
   }
