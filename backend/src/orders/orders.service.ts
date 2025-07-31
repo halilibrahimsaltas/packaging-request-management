@@ -140,7 +140,19 @@ export class OrdersService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-   
+    // Update order properties if provided
+    if (updateOrderDto.customerId) {
+      const customer = await this.userRepository.findOne({
+        where: { id: updateOrderDto.customerId }
+      });
+      if (!customer) {
+        throw new NotFoundException('Customer not found');
+      }
+      order.customer = customer;
+    }
+
+    // Save updated order
+    await this.orderRepository.save(order);
 
     return this.findOne(id);
   }
