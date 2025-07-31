@@ -15,7 +15,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string): Promise<UserResponseDto> {
+  async findByEmail(email: string, includePassword: boolean = false): Promise<UserResponseDto | User> {
     const user = await this.userRepository.findOne({
       where: { email }
     });
@@ -24,6 +24,12 @@ export class UsersService {
       throw new NotFoundException(`User with email ${email} not found`);
     }
 
+    // Return raw entity if password is needed (for auth)
+    if (includePassword) {
+      return user;
+    }
+
+    // Return DTO for normal operations
     return plainToInstance(UserResponseDto, user);
   }
 
