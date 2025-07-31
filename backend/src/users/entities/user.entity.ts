@@ -15,8 +15,11 @@ export class User {
   @Column({ type: 'varchar', length: 100 })
   password: string;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean;
+  @Column({ type: 'varchar', length: 100 })
+  address: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
