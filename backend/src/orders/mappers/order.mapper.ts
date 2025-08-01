@@ -29,12 +29,35 @@ export function mapSupplierInterestToDto(supplierInterest: any): SupplierInteres
   };
 }
 
+export function mapMaskedSupplierInterestToDto(supplierInterest: any): SupplierInterestResponseDto {
+  return {
+    id: supplierInterest.id,
+    supplierId: supplierInterest.supplierId,
+    supplierName: supplierInterest.supplierName, // already masked
+    isInterested: supplierInterest.isInterested,
+    notes: supplierInterest.notes,
+    createdAt: supplierInterest.createdAt,
+    updatedAt: supplierInterest.updatedAt,
+  };
+}
+
 export function mapOrderWithSupplierInterestsToDto(orderWithInterests: any): OrderWithSupplierInterestsResponseDto {
   const baseOrder = mapOrderToDto(orderWithInterests);
   
+  // if supplier names are already masked, use them
+  const supplierInterests = orderWithInterests.supplierInterests?.map((si: any) => {
+    if (si.supplierName && si.supplierName.includes('*')) {
+      // already masked
+      return mapMaskedSupplierInterestToDto(si);
+    } else {
+      // Normal mapping
+      return mapSupplierInterestToDto(si);
+    }
+  }) || [];
+  
   return {
     ...baseOrder,
-    supplierInterests: orderWithInterests.supplierInterests?.map(mapSupplierInterestToDto) || [],
+    supplierInterests,
     interestedSuppliersCount: orderWithInterests.interestedSuppliersCount || 0,
     totalSuppliersCount: orderWithInterests.totalSuppliersCount || 0,
   };

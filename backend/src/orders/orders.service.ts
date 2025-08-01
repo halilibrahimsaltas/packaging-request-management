@@ -250,4 +250,76 @@ export class OrdersService {
 
     return orders;
   }
+
+  // get customer's orders
+  async findMyOrders(customerId: number, paginationParams?: PaginationParams): Promise<Order[]> {
+    const { page = 1, limit = 10, sort = 'id', order = 'DESC' } = paginationParams || {};
+    const offset = (page - 1) * limit;
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('order.customer.id = :customerId', { customerId })
+      .orderBy(`order.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit)
+      .getMany();
+
+    return orders;
+  }
+
+  // get customer's order with masked suppliers
+  async findMyOrderWithMaskedSuppliers(customerId: number, orderId: number): Promise<any> {
+    const order = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('order.id = :orderId', { orderId })
+      .andWhere('order.customer.id = :customerId', { customerId })
+      .getOne();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found or you don't have access`);
+    }
+
+    // get supplier interests
+    const supplierInterests = await this.supplierInterestRepository.find({
+      where: { order: { id: order.id } },
+      relations: ['supplier'],
+    });
+
+    // mask supplier names
+    const maskedSupplierInterests = supplierInterests.map(si => ({
+      id: si.id,
+      supplierId: si.supplier.id,
+      supplierName: this.maskSupplierName(si.supplier.username),
+      isInterested: si.isInterested,
+      notes: si.notes,
+      createdAt: si.createdAt,
+      updatedAt: si.updatedAt,
+    }));
+
+    return {
+      ...order,
+      supplierInterests: maskedSupplierInterests,
+      interestedSuppliersCount: supplierInterests.filter(si => si.isInterested).length,
+      totalSuppliersCount: supplierInterests.length,
+    };
+  }
+
+  // mask supplier name 
+  private maskSupplierName(name: string): string {
+    if (!name || name.length < 2) return name;
+    
+    const words = name.split(' ');
+    const maskedWords = words.map(word => {
+      if (word.length <= 2) return word;
+      return word.charAt(0) + '*'.repeat(word.length - 2) + word.charAt(word.length - 1);
+    });
+    
+    return maskedWords.join(' ');
+  }
 }

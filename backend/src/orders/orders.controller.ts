@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -23,6 +23,30 @@ export class OrdersController {
     return mapOrderToDto(order);
   }
 
+  // get customer's orders
+  @Get('my-orders')
+  @Roles(UserRole.CUSTOMER)
+  async findMyOrders(
+    @Request() req,
+    @Query() paginationParams: PaginationParams
+  ): Promise<OrderResponseDto[]> {
+    const customerId = req.user.id;
+    const orders = await this.ordersService.findMyOrders(customerId, paginationParams);
+    return orders.map(order => mapOrderToDto(order));
+  }
+
+  // get customer's order with masked suppliers
+  @Get('my-orders/:id')
+  @Roles(UserRole.CUSTOMER)
+  async findMyOrderWithMaskedSuppliers(
+    @Request() req,
+    @Param('id') id: string
+  ): Promise<OrderWithSupplierInterestsResponseDto> {
+    const customerId = req.user.id;
+    const order = await this.ordersService.findMyOrderWithMaskedSuppliers(customerId, +id);
+    return mapOrderWithSupplierInterestsToDto(order);
+  }
+
   @Get()
   @Roles(UserRole.ADMIN)
   async findAll(@Query() paginationParams: PaginationParams): Promise<OrderResponseDto[]> {
@@ -30,7 +54,7 @@ export class OrdersController {
     return orders.map(order => mapOrderToDto(order));
   }
 
-  // bring all orders with supplier interests
+  // get all orders with supplier interests
   @Get('with-supplier-interests')
   @Roles(UserRole.ADMIN)
   async findAllWithSupplierInterests(@Query() paginationParams: PaginationParams): Promise<OrderWithSupplierInterestsResponseDto[]> {
@@ -38,7 +62,7 @@ export class OrdersController {
     return orders.map(order => mapOrderWithSupplierInterestsToDto(order));
   }
 
-  // bring specific order with supplier interests
+  // get specific order with supplier interests
   @Get('with-supplier-interests/:id')
   @Roles(UserRole.ADMIN)
   async findOneWithSupplierInterests(@Param('id') id: string): Promise<OrderWithSupplierInterestsResponseDto> {
@@ -46,7 +70,7 @@ export class OrdersController {
     return mapOrderWithSupplierInterestsToDto(order);
   }
 
-  // bring specific supplier's interested orders
+  // get specific supplier's interested orders
   @Get('by-supplier-interest/:supplierId')
   @Roles(UserRole.ADMIN)
   async findOrdersBySupplierInterest(
