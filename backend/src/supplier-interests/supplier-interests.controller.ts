@@ -16,7 +16,7 @@ export class SupplierInterestsController {
   @Post()
   @Roles(UserRole.SUPPLIER)
   create(@Body() createSupplierInterestDto: CreateSupplierInterestDto, @Request() req: any) {
-    const supplierId = req.user.sub; // JWT'den user ID
+    const supplierId = req.user.sub; 
     return this.supplierInterestsService.create(createSupplierInterestDto, supplierId);
   }
 
@@ -42,7 +42,7 @@ export class SupplierInterestsController {
   @Get('my-interests')
   @Roles(UserRole.SUPPLIER)
   findMyInterests(@Request() req: any) {
-    const supplierId = req.user.sub; // JWT'den user ID
+    const supplierId = req.user.sub; // JWT formatted user ID
     return this.supplierInterestsService.findBySupplier(supplierId);
   }
 

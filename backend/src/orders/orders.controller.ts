@@ -2,8 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } f
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { OrderResponseDto } from './dto/order-response.dto';
-import { mapOrderToDto } from './mappers/order.mapper';
+import { OrderResponseDto, OrderWithSupplierInterestsResponseDto } from './dto/order-response.dto';
+import { mapOrderToDto, mapOrderWithSupplierInterestsToDto } from './mappers/order.mapper';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
 import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -27,6 +27,33 @@ export class OrdersController {
   @Roles(UserRole.ADMIN)
   async findAll(@Query() paginationParams: PaginationParams): Promise<OrderResponseDto[]> {
     const orders = await this.ordersService.findAll(paginationParams);
+    return orders.map(order => mapOrderToDto(order));
+  }
+
+  // bring all orders with supplier interests
+  @Get('with-supplier-interests')
+  @Roles(UserRole.ADMIN)
+  async findAllWithSupplierInterests(@Query() paginationParams: PaginationParams): Promise<OrderWithSupplierInterestsResponseDto[]> {
+    const orders = await this.ordersService.findAllWithSupplierInterests(paginationParams);
+    return orders.map(order => mapOrderWithSupplierInterestsToDto(order));
+  }
+
+  // bring specific order with supplier interests
+  @Get('with-supplier-interests/:id')
+  @Roles(UserRole.ADMIN)
+  async findOneWithSupplierInterests(@Param('id') id: string): Promise<OrderWithSupplierInterestsResponseDto> {
+    const order = await this.ordersService.findOneWithSupplierInterests(+id);
+    return mapOrderWithSupplierInterestsToDto(order);
+  }
+
+  // bring specific supplier's interested orders
+  @Get('by-supplier-interest/:supplierId')
+  @Roles(UserRole.ADMIN)
+  async findOrdersBySupplierInterest(
+    @Param('supplierId') supplierId: string,
+    @Query() paginationParams: PaginationParams
+  ): Promise<OrderResponseDto[]> {
+    const orders = await this.ordersService.findOrdersBySupplierInterest(+supplierId, paginationParams);
     return orders.map(order => mapOrderToDto(order));
   }
 

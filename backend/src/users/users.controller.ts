@@ -3,12 +3,12 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import type { PaginationParams, PaginatedResult } from '../common/interfaces/pagination.interface';
 import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
+import { UserFilterDto } from './dto/user-filter.dto';
 
 @Controller('users')
 export class UsersController {
@@ -22,7 +22,7 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(@Query() paginationParams: PaginationParams): Promise<UserResponseDto[]> {
+  async findAll(@Query() paginationParams: UserFilterDto): Promise<UserResponseDto[]> {
     return this.usersService.getUsers(paginationParams);
   }
 

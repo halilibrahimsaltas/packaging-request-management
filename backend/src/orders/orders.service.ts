@@ -5,6 +5,7 @@ import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { User } from '../users/entities/user.entity';
 import { Product } from '../products/entities/product.entity';
+import { SupplierInterest } from '../supplier-interests/entities/supplier-interest.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
@@ -20,6 +21,8 @@ export class OrdersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(SupplierInterest)
+    private readonly supplierInterestRepository: Repository<SupplierInterest>,
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
@@ -166,5 +169,85 @@ export class OrdersService {
 
     await this.orderRepository.remove(order);
     return { message: 'Order deleted successfully' };
+  }
+
+  async findAllWithSupplierInterests(paginationParams?: PaginationParams): Promise<any[]> {
+    const { page = 1, limit = 10, sort = 'id', order = 'DESC' } = paginationParams || {};
+    const offset = (page - 1) * limit;
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .orderBy(`order.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit)
+      .getMany();
+
+    // every order with supplier interests
+    const ordersWithInterests = await Promise.all(
+      orders.map(async (order) => {
+        const supplierInterests = await this.supplierInterestRepository.find({
+          where: { order: { id: order.id } },
+          relations: ['supplier'],
+        });
+
+        return {
+          ...order,
+          supplierInterests,
+          interestedSuppliersCount: supplierInterests.filter(si => si.isInterested).length,
+          totalSuppliersCount: supplierInterests.length,
+        };
+      })
+    );
+
+    return ordersWithInterests;
+  }
+
+  async findOneWithSupplierInterests(id: number): Promise<any> {
+    const order = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('order.id = :id', { id })
+      .getOne();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    // bring supplier interests
+    const supplierInterests = await this.supplierInterestRepository.find({
+      where: { order: { id: order.id } },
+      relations: ['supplier'],
+    });
+
+    return {
+      ...order,
+      supplierInterests,
+      interestedSuppliersCount: supplierInterests.filter(si => si.isInterested).length,
+      totalSuppliersCount: supplierInterests.length,
+    };
+  }
+
+  async findOrdersBySupplierInterest(supplierId: number, paginationParams?: PaginationParams): Promise<any[]> {
+    const { page = 1, limit = 10, sort = 'id', order = 'DESC' } = paginationParams || {};
+    const offset = (page - 1) * limit;
+
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .innerJoin('supplier_interest', 'si', 'si.orderId = order.id')
+      .where('si.supplierId = :supplierId', { supplierId })
+      .orderBy(`order.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit)
+      .getMany();
+
+    return orders;
   }
 }

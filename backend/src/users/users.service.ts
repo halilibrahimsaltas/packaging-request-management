@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import * as crypto from 'crypto';
+import { UserFilterDto } from './dto/user-filter.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,33 +16,29 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string, includePassword: boolean = false): Promise<UserResponseDto | User> {
-    const user = await this.userRepository.findOne({
-      where: { email }
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-
-    // Return raw entity if password is needed (for auth)
-    if (includePassword) {
-      return user;
-    }
-
-    // Return DTO for normal operations
-    return plainToInstance(UserResponseDto, user);
-  }
-
-  async getUsers({ page = 1, limit = 10, sort = 'id', order = 'DESC' }): Promise<UserResponseDto[]> {
+  async getUsers(filter: UserFilterDto): Promise<UserResponseDto[]> {
+    const {
+      page = 1,
+      limit = 10,
+      sort = 'id',
+      order = 'DESC',
+      role,
+    } = filter;
+  
     const offset = (page - 1) * limit;
-    const users = await this.userRepository
+  
+    const queryBuilder = this.userRepository
       .createQueryBuilder('user')
-      .orderBy(`user.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .orderBy(`user.${sort}`, order)
       .skip(offset)
-      .take(limit)
-      .getMany();
-    
+      .take(limit);
+  
+      // role filter
+    if (role && role.length > 0) {
+      queryBuilder.andWhere('user.role IN (:...roles)', { roles: role });
+    }
+  
+    const users = await queryBuilder.getMany();
     return plainToInstance(UserResponseDto, users);
   }
 
@@ -95,4 +92,23 @@ export class UsersService {
     const savedUser = await this.userRepository.save(newUser);
     return plainToInstance(UserResponseDto, savedUser);
   }
+
+  async findByEmail(email: string, includePassword: boolean = false): Promise<UserResponseDto | User> {
+    const user = await this.userRepository.findOne({
+      where: { email }
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    // Return raw entity if password is needed (for auth)
+    if (includePassword) {
+      return user;
+    }
+
+    // Return DTO for normal operations
+    return plainToInstance(UserResponseDto, user);
+  }
+
 }
