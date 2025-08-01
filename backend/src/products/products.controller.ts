@@ -30,6 +30,30 @@ export class ProductsController {
     return this.productsService.findActiveProducts(paginationParams);
   }
 
+  // get all product types
+  @Get('types')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getProductTypes(): Promise<string[]> {
+    return this.productsService.getProductTypes();
+  }
+
+  // get active product types for customers
+  @Get('types/active')
+  async getActiveProductTypes(): Promise<string[]> {
+    return this.productsService.getActiveProductTypesForCustomers();
+  }
+
+
+  // get products by type
+  @Get('type/:type')
+  async findByType(
+    @Param('type') type: string,
+    @Query() paginationParams: PaginationParams
+  ): Promise<ProductResponseDto[]> {
+    return this.productsService.findByType(type, paginationParams);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<ProductResponseDto> {
     return this.productsService.findOne(+id);

@@ -218,7 +218,7 @@ export class OrdersService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
-    // bring supplier interests
+    // get supplier interests
     const supplierInterests = await this.supplierInterestRepository.find({
       where: { order: { id: order.id } },
       relations: ['supplier'],

@@ -119,4 +119,46 @@ export class ProductsService {
     await this.productRepository.remove(product);
     return { message: 'Product deleted successfully' };
   }
+
+  // get product types
+  async getProductTypes(): Promise<string[]> {
+    const types = await this.productRepository
+      .createQueryBuilder('product')
+      .select('DISTINCT product.type', 'type')
+      .where('product.isActive = :isActive', { isActive: true })
+      .getRawMany();
+    
+    return types.map(item => item.type);
+  }
+
+  // get products by type
+  async findByType(type: string, paginationParams?: PaginationParams): Promise<ProductResponseDto[]> {
+    const { page = 1, limit = 10, sort = 'id', order = 'ASC' } = paginationParams || {};
+    const offset = (page - 1) * limit;
+    
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .where('product.type = :type', { type })
+      .andWhere('product.isActive = :isActive', { isActive: true })
+      .orderBy(`product.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit)
+      .getMany();
+    
+    return plainToInstance(ProductResponseDto, products);
+  }
+
+ 
+
+  // get active product types for customers
+  async getActiveProductTypesForCustomers(): Promise<string[]> {
+    const types = await this.productRepository
+      .createQueryBuilder('product')
+      .select('DISTINCT product.type', 'type')
+      .where('product.isActive = :isActive', { isActive: true })
+      .orderBy('product.type', 'ASC')
+      .getRawMany();
+    
+    return types.map(item => item.type);
+  }
 }
