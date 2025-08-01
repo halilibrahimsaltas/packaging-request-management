@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { SupplierInterestsService } from './supplier-interests.service';
 import { CreateSupplierInterestDto } from './dto/create-supplier-interest.dto';
 import { UpdateSupplierInterestDto } from './dto/update-supplier-interest.dto';
@@ -7,6 +7,7 @@ import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
+import type { PaginationParams } from '../common/interfaces/pagination.interface';
 
 @Controller('supplier-interests')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -18,6 +19,42 @@ export class SupplierInterestsController {
   create(@Body() createSupplierInterestDto: CreateSupplierInterestDto, @Request() req: any) {
     const supplierId = req.user.sub; 
     return this.supplierInterestsService.create(createSupplierInterestDto, supplierId);
+  }
+
+  // get orders by product types
+  @Get('orders/by-product-types')
+  @Roles(UserRole.SUPPLIER)
+  async findOrdersByProductTypes(
+    @Request() req: any,
+    @Query('productTypes') productTypes: string,
+    @Query() paginationParams: PaginationParams
+  ) {
+    const supplierId = req.user.sub;
+    const productTypesArray = productTypes ? productTypes.split(',') : [];
+    return this.supplierInterestsService.findOrdersByProductTypes(supplierId, productTypesArray, paginationParams);
+  }
+
+  // get order detail for supplier
+  @Get('orders/:orderId/detail')
+  @Roles(UserRole.SUPPLIER)
+  async findOrderDetailForSupplier(
+    @Request() req: any,
+    @Param('orderId') orderId: string
+  ) {
+    const supplierId = req.user.sub;
+    return this.supplierInterestsService.findOrderDetailForSupplier(supplierId, +orderId);
+  }
+
+  // update supplier interest status
+  @Post('orders/:orderId/toggle-interest')
+  @Roles(UserRole.SUPPLIER)
+  async toggleInterest(
+    @Request() req: any,
+    @Param('orderId') orderId: string,
+    @Body() body: { isInterested: boolean; notes?: string }
+  ) {
+    const supplierId = req.user.sub;
+    return this.supplierInterestsService.toggleInterest(supplierId, +orderId, body.isInterested, body.notes);
   }
 
   @Get()

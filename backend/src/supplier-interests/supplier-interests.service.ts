@@ -8,6 +8,7 @@ import { Order } from '../orders/entities/order.entity';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from '../common/enums/user-role.enum';
 import { SupplierInterestMapper } from './mappers/supplierInterest.mapper';
+import type { PaginationParams } from '../common/interfaces/pagination.interface';
 
 @Injectable()
 export class SupplierInterestsService {
@@ -120,6 +121,124 @@ export class SupplierInterestsService {
     return await this.supplierInterestRepository.remove(supplierInterest);
   }
 
-  
+  // get orders by product types
+  async findOrdersByProductTypes(supplierId: number, productTypes: string[], paginationParams?: PaginationParams) {
+    const { page = 1, limit = 10, sort = 'id', order = 'DESC' } = paginationParams || {};
+    const offset = (page - 1) * limit;
+
+    const queryBuilder = this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .orderBy(`order.${sort}`, order.toUpperCase() as 'ASC' | 'DESC')
+      .skip(offset)
+      .take(limit);
+
+    // filter by product types
+    if (productTypes && productTypes.length > 0) {
+      queryBuilder.andWhere('product.type IN (:...productTypes)', { productTypes });
+    }
+
+    const orders = await queryBuilder.getMany();
+
+    // check supplier interest status for each order
+    const ordersWithInterestStatus = await Promise.all(
+      orders.map(async (order) => {
+        const existingInterest = await this.supplierInterestRepository.findOne({
+          where: { 
+            supplier: { id: supplierId }, 
+            order: { id: order.id } 
+          }
+        });
+
+        return {
+          ...order,
+          supplierInterest: existingInterest ? {
+            id: existingInterest.id,
+            isInterested: existingInterest.isInterested,
+            notes: existingInterest.notes,
+            createdAt: existingInterest.createdAt,
+            updatedAt: existingInterest.updatedAt,
+          } : null,
+        };
+      })
+    );
+
+    return ordersWithInterestStatus;
+  }
+
+  // get order detail for supplier
+  async findOrderDetailForSupplier(supplierId: number, orderId: number) {
+    const order = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('order.id = :orderId', { orderId })
+      .getOne();
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // check supplier interest status for this order
+    const existingInterest = await this.supplierInterestRepository.findOne({
+      where: { 
+        supplier: { id: supplierId }, 
+        order: { id: orderId } 
+      }
+    });
+
+    return {
+      ...order,
+      supplierInterest: existingInterest ? {
+        id: existingInterest.id,
+        isInterested: existingInterest.isInterested,
+        notes: existingInterest.notes,
+        createdAt: existingInterest.createdAt,
+        updatedAt: existingInterest.updatedAt,
+      } : null,
+    };
+  }
+
+  // update supplier interest status  
+  async toggleInterest(supplierId: number, orderId: number, isInterested: boolean, notes?: string) {
+    // Check if order exists
+    const order = await this.orderRepository.findOne({ where: { id: orderId } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Check if supplier exists and has SUPPLIER role
+    const supplier = await this.userRepository.findOne({ 
+      where: { id: supplierId, role: UserRole.SUPPLIER } 
+    });
+    if (!supplier) {
+      throw new NotFoundException('Supplier not found');
+    }
+
+    // Check if supplier already has interest in this order
+    const existingInterest = await this.supplierInterestRepository.findOne({
+      where: { supplier: { id: supplierId }, order: { id: orderId } }
+    });
+
+    if (existingInterest) {
+      // Update existing interest
+      existingInterest.isInterested = isInterested;
+      existingInterest.notes = notes || existingInterest.notes;
+      return await this.supplierInterestRepository.save(existingInterest);
+    }
+
+    // Create new interest
+    const supplierInterest = this.supplierInterestRepository.create({
+      supplier,
+      order,
+      isInterested,
+      notes: notes || null,
+    });
+
+    return await this.supplierInterestRepository.save(supplierInterest);
+  }
 
 }
