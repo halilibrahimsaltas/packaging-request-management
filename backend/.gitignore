@@ -43,10 +43,12 @@ lerna-debug.log*
 .env.local
 
 /project_v1.md
+/endpoints.http
 
 # temp directory
 .temp
 .tmp
+
 
 # Runtime data
 pids
