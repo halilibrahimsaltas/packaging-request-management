@@ -80,7 +80,8 @@ export class SupplierInterestsService {
 
   async findAll() {
     const interests = await this.supplierInterestRepository.find({
-      relations: ['supplier', 'order', 'order.items', 'order.items.product'],
+      where: { isInterested: true },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product'],
     });
     
     return SupplierInterestMapper.toResponseArray(interests);
@@ -88,8 +89,8 @@ export class SupplierInterestsService {
 
   async findOne(id: number) {
     const supplierInterest = await this.supplierInterestRepository.findOne({
-      where: { id },
-      relations: ['supplier', 'order', 'order.items', 'order.items.product'],
+      where: { id, isInterested: true },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product'],
     });
 
     if (!supplierInterest) {
@@ -101,8 +102,8 @@ export class SupplierInterestsService {
 
   async findByOrder(orderId: number) {
     const interests = await this.supplierInterestRepository.find({
-      where: { order: { id: orderId } },
-      relations: ['supplier', 'order'],
+      where: { order: { id: orderId }, isInterested: true },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product'],
     });
     
     return SupplierInterestMapper.toResponseArray(interests);
@@ -110,9 +111,45 @@ export class SupplierInterestsService {
 
   async findBySupplier(supplierId: number) {
     const interests = await this.supplierInterestRepository.find({
-      where: { supplier: { id: supplierId } },
-      relations: ['order', 'order.items', 'order.items.product'],
+      where: { supplier: { id: supplierId }, isInterested: true },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product'],
     });
+    
+    return SupplierInterestMapper.toResponseArray(interests);
+  }
+
+  // Special method for my-interests endpoint
+  async findMyInterests(supplierId: number) {
+    
+    // First verify the supplier exists
+    const supplier = await this.userRepository.findOne({
+      where: { id: supplierId }
+    });
+    
+    
+    if (!supplier) {
+      throw new NotFoundException('Supplier not found');
+    }
+    
+    // Try simple find first to see if there are any interests
+    const allInterests = await this.supplierInterestRepository.find({
+      where: { isInterested: true },
+      relations: ['supplier']
+    });
+    
+    
+    // Use query builder for more explicit control
+    const interests = await this.supplierInterestRepository
+      .createQueryBuilder('interest')
+      .leftJoinAndSelect('interest.supplier', 'supplier')
+      .leftJoinAndSelect('interest.order', 'order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('supplier.id = :supplierId', { supplierId })
+      .andWhere('interest.isInterested = :isInterested', { isInterested: true })
+      .getMany();
+    
     
     return SupplierInterestMapper.toResponseArray(interests);
   }
@@ -159,7 +196,8 @@ export class SupplierInterestsService {
         const existingInterest = await this.supplierInterestRepository.findOne({
           where: { 
             supplier: { id: supplierId }, 
-            order: { id: order.id } 
+            order: { id: order.id },
+            isInterested: true
           }
         });
 
@@ -188,7 +226,8 @@ export class SupplierInterestsService {
     const existingInterest = await this.supplierInterestRepository.findOne({
       where: { 
         supplier: { id: supplierId }, 
-        order: { id: orderId } 
+        order: { id: orderId },
+        isInterested: true
       }
     });
 

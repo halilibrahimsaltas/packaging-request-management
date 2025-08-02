@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
 import { SupplierInterestsService } from './supplier-interests.service';
 import { CreateSupplierInterestDto } from './dto/create-supplier-interest.dto';
-import { UpdateSupplierInterestDto } from './dto/update-supplier-interest.dto';
 import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
@@ -17,7 +16,7 @@ export class SupplierInterestsController {
   @Post()
   @Roles(UserRole.SUPPLIER)
   create(@Body() createSupplierInterestDto: CreateSupplierInterestDto, @Request() req: any) {
-    const supplierId = req.user.sub; 
+    const supplierId = req.user.id; 
     return this.supplierInterestsService.create(createSupplierInterestDto, supplierId);
   }
 
@@ -29,7 +28,7 @@ export class SupplierInterestsController {
     @Query('productTypes') productTypes: string,
     @Query() paginationParams: PaginationParams
   ) {
-    const supplierId = req.user.sub;
+    const supplierId = req.user.id;
     const productTypesArray = productTypes ? productTypes.split(',') : [];
     return this.supplierInterestsService.findOrdersByProductTypes(supplierId, productTypesArray, paginationParams);
   }
@@ -41,7 +40,7 @@ export class SupplierInterestsController {
     @Request() req: any,
     @Param('orderId') orderId: string
   ) {
-    const supplierId = req.user.sub;
+    const supplierId = req.user.id;
     return this.supplierInterestsService.findOrderDetailForSupplier(supplierId, +orderId);
   }
 
@@ -53,7 +52,7 @@ export class SupplierInterestsController {
     @Param('orderId') orderId: string,
     @Body() body: { isInterested: boolean; notes?: string }
   ) {
-    const supplierId = req.user.sub;
+    const supplierId = req.user.id;
     return this.supplierInterestsService.toggleInterest(supplierId, +orderId, body.isInterested, body.notes);
   }
 
@@ -79,8 +78,13 @@ export class SupplierInterestsController {
   @Get('my-interests')
   @Roles(UserRole.SUPPLIER)
   findMyInterests(@Request() req: any) {
-    const supplierId = req.user.sub; // JWT formatted user ID
-    return this.supplierInterestsService.findBySupplier(supplierId);
+    const supplierId = req.user.id;
+    
+    if (!supplierId) {
+      throw new Error('No supplier ID found in JWT token');
+    }
+    
+    return this.supplierInterestsService.findMyInterests(supplierId);
   }
 
   @Get(':id')
