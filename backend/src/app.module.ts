@@ -11,6 +11,7 @@ import { Product } from './products/entities/product.entity';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
 import { SupplierInterest } from './supplier-interests/entities/supplier-interest.entity';
+import { DataSource } from 'typeorm';
 
 
 @Module({
@@ -36,6 +37,13 @@ import { SupplierInterest } from './supplier-interests/entities/supplier-interes
     OrdersModule,
     SupplierInterestsModule,
     AuthModule,
+  ],
+  providers: [
+    {
+      provide: 'DataSource',
+      useFactory: (dataSource: DataSource) => dataSource,
+      inject: [DataSource],
+    },
   ],
 })
 export class AppModule {}

@@ -7,6 +7,7 @@ import { SnackbarProvider } from "notistack";
 import { CssBaseline, AppBar, Toolbar, Typography } from "@mui/material";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePathname } from "next/navigation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,6 +24,28 @@ const geistMono = Geist_Mono({
 function AppTitle() {
   const { t } = useLanguage();
   return t("app.title");
+}
+
+// Layout component to conditionally show AppBar
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.startsWith("/auth");
+
+  return (
+    <>
+      {!isAuthPage && (
+        <AppBar position="static" color="default" elevation={1}>
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              <AppTitle />
+            </Typography>
+            <LanguageSwitcher />
+          </Toolbar>
+        </AppBar>
+      )}
+      {children}
+    </>
+  );
 }
 
 export default function RootLayout({
@@ -44,15 +67,7 @@ export default function RootLayout({
           <AuthProvider>
             <SnackbarProvider maxSnack={3}>
               <CssBaseline />
-              <AppBar position="static" color="default" elevation={1}>
-                <Toolbar>
-                  <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    <AppTitle />
-                  </Typography>
-                  <LanguageSwitcher />
-                </Toolbar>
-              </AppBar>
-              {children}
+              <LayoutContent>{children}</LayoutContent>
             </SnackbarProvider>
           </AuthProvider>
         </LanguageProvider>
