@@ -25,7 +25,10 @@ export class SupplierInterestsService {
     const { orderId, isInterested, notes } = createSupplierInterestDto;
 
     // Check if order exists
-    const order = await this.orderRepository.findOne({ where: { id: orderId } });
+    const order = await this.orderRepository.findOne({ 
+      where: { id: orderId },
+      relations: ['customer', 'items', 'items.product']
+    });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -40,14 +43,16 @@ export class SupplierInterestsService {
 
     // Check if supplier already has interest in this order
     const existingInterest = await this.supplierInterestRepository.findOne({
-      where: { supplier: { id: supplierId }, order: { id: orderId } }
+      where: { supplier: { id: supplierId }, order: { id: orderId } },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product']
     });
 
     if (existingInterest) {
       // Update existing interest
       existingInterest.isInterested = isInterested;
       existingInterest.notes = notes || null;
-      return await this.supplierInterestRepository.save(existingInterest);
+      const savedInterest = await this.supplierInterestRepository.save(existingInterest);
+      return SupplierInterestMapper.toResponse(savedInterest);
     }
 
     // Create new interest
@@ -58,7 +63,19 @@ export class SupplierInterestsService {
       notes,
     });
 
-    return await this.supplierInterestRepository.save(supplierInterest);
+    const savedInterest = await this.supplierInterestRepository.save(supplierInterest);
+    
+    // Fetch with relations for mapping
+    const interestWithRelations = await this.supplierInterestRepository.findOne({
+      where: { id: savedInterest.id },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product']
+    });
+
+    if (!interestWithRelations) {
+      throw new NotFoundException('Failed to create supplier interest');
+    }
+
+    return SupplierInterestMapper.toResponse(interestWithRelations);
   }
 
   async findAll() {

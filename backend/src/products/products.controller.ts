@@ -38,9 +38,9 @@ export class ProductsController {
     return this.productsService.getProductTypes();
   }
 
-  // get active product types for customers
+  // get active products for customers
   @Get('types/active')
-  async getActiveProductTypes(): Promise<string[]> {
+  async getActiveProductTypes(): Promise<ProductResponseDto[]> {
     return this.productsService.getActiveProductTypesForCustomers();
   }
 

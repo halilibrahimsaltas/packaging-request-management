@@ -6,6 +6,12 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { SupplierInterestsModule } from './supplier-interests/supplier-interests.module';
 import { AuthModule } from './auth/auth.module';
+import { User } from './users/entities/user.entity';
+import { Product } from './products/entities/product.entity';
+import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
+import { SupplierInterest } from './supplier-interests/entities/supplier-interest.entity';
+
 
 @Module({
   imports: [
@@ -20,8 +26,9 @@ import { AuthModule } from './auth/auth.module';
         username: config.get('DATABASE_USERNAME'),
         password: config.get('DATABASE_PASSWORD'),
         database: config.get('DATABASE_NAME'),
-        autoLoadEntities: true,
-        synchronize: true, 
+        entities: [User, Product, Order, OrderItem, SupplierInterest],
+        synchronize: true,
+        logging: true,
       }),
     }),
     UsersModule,

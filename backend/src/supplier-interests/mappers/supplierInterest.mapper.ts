@@ -40,7 +40,23 @@ export class SupplierInterestMapper {
         username: interest.supplier.username,
         maskedName: this.maskSupplierName(interest.supplier.username),
       },
-      order: interest.order,
+      order: {
+        id: interest.order.id,
+        customer: {
+          id: interest.order.customer.id,
+          username: interest.order.customer.username,
+        },
+        items: interest.order.items.map(item => ({
+          id: item.id,
+          product: {
+            id: item.product.id,
+            name: item.product.name,
+            type: item.product.type,
+          },
+          quantity: item.quantity,
+        })),
+        createdAt: interest.order.createdAt,
+      },
       isInterested: interest.isInterested,
       notes: interest.notes,
       createdAt: interest.createdAt,

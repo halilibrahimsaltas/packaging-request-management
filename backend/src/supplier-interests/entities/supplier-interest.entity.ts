@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Up
 import { User } from '../../users/entities/user.entity';
 import { Order } from '../../orders/entities/order.entity';
 
-@Entity()
+@Entity('supplier_interests')
 export class SupplierInterest {
   @PrimaryGeneratedColumn()
   id: number;

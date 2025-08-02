@@ -150,15 +150,15 @@ export class ProductsService {
 
  
 
-  // get active product types for customers
-  async getActiveProductTypesForCustomers(): Promise<string[]> {
-    const types = await this.productRepository
+  // get active products for customers
+  async getActiveProductTypesForCustomers(): Promise<ProductResponseDto[]> {
+    const products = await this.productRepository
       .createQueryBuilder('product')
-      .select('DISTINCT product.type', 'type')
       .where('product.isActive = :isActive', { isActive: true })
       .orderBy('product.type', 'ASC')
-      .getRawMany();
+      .addOrderBy('product.name', 'ASC')
+      .getMany();
     
-    return types.map(item => item.type);
+    return plainToInstance(ProductResponseDto, products);
   }
 }
