@@ -28,4 +28,30 @@ export class SupplierInterestResponseDto {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// DTO for orders with supplier interest status
+export class OrderWithSupplierInterestDto {
+  id: number;
+  customer: {
+    id: number;
+    username: string;
+  };
+  items: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+      type: string;
+    };
+    quantity: number;
+  }>;
+  createdAt: Date;
+  supplierInterest: {
+    id: number;
+    isInterested: boolean;
+    notes?: string;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null;
 } 

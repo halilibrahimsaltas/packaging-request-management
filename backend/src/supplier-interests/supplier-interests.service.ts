@@ -6,8 +6,8 @@ import { UpdateSupplierInterestDto } from './dto/update-supplier-interest.dto';
 import { SupplierInterest } from './entities/supplier-interest.entity';
 import { Order } from '../orders/entities/order.entity';
 import { User } from '../users/entities/user.entity';
-import { UserRole } from '../common/enums/user-role.enum';
 import { SupplierInterestMapper } from './mappers/supplierInterest.mapper';
+import { OrderWithSupplierInterestDto } from './dto/supplier-interest-response.dto';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
 
 @Injectable()
@@ -33,9 +33,9 @@ export class SupplierInterestsService {
       throw new NotFoundException('Order not found');
     }
 
-    // Check if supplier exists and has SUPPLIER role
+    
     const supplier = await this.userRepository.findOne({ 
-      where: { id: supplierId, role: UserRole.SUPPLIER } 
+      where: { id: supplierId } 
     });
     if (!supplier) {
       throw new NotFoundException('Supplier not found');
@@ -117,13 +117,7 @@ export class SupplierInterestsService {
     return SupplierInterestMapper.toResponseArray(interests);
   }
 
-  async update(id: number, updateSupplierInterestDto: UpdateSupplierInterestDto) {
-    const supplierInterest = await this.findOne(id);
-    
-    Object.assign(supplierInterest, updateSupplierInterestDto);
-    
-    return await this.supplierInterestRepository.save(supplierInterest);
-  }
+  
 
   async remove(id: number) {
     const supplierInterest = await this.supplierInterestRepository.findOne({
@@ -139,7 +133,7 @@ export class SupplierInterestsService {
   }
 
   // get orders by product types
-  async findOrdersByProductTypes(supplierId: number, productTypes: string[], paginationParams?: PaginationParams) {
+  async findOrdersByProductTypes(supplierId: number, productTypes: string[], paginationParams?: PaginationParams): Promise<OrderWithSupplierInterestDto[]> {
     const { page = 1, limit = 10, sort = 'id', order = 'DESC' } = paginationParams || {};
     const offset = (page - 1) * limit;
 
@@ -159,7 +153,7 @@ export class SupplierInterestsService {
 
     const orders = await queryBuilder.getMany();
 
-    // check supplier interest status for each order
+    // check supplier interest status for each order using mapper
     const ordersWithInterestStatus = await Promise.all(
       orders.map(async (order) => {
         const existingInterest = await this.supplierInterestRepository.findOne({
@@ -169,16 +163,7 @@ export class SupplierInterestsService {
           }
         });
 
-        return {
-          ...order,
-          supplierInterest: existingInterest ? {
-            id: existingInterest.id,
-            isInterested: existingInterest.isInterested,
-            notes: existingInterest.notes,
-            createdAt: existingInterest.createdAt,
-            updatedAt: existingInterest.updatedAt,
-          } : null,
-        };
+        return SupplierInterestMapper.toOrderWithSupplierInterest(order, existingInterest);
       })
     );
 
@@ -186,7 +171,7 @@ export class SupplierInterestsService {
   }
 
   // get order detail for supplier
-  async findOrderDetailForSupplier(supplierId: number, orderId: number) {
+  async findOrderDetailForSupplier(supplierId: number, orderId: number): Promise<OrderWithSupplierInterestDto> {
     const order = await this.orderRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.customer', 'customer')
@@ -207,16 +192,7 @@ export class SupplierInterestsService {
       }
     });
 
-    return {
-      ...order,
-      supplierInterest: existingInterest ? {
-        id: existingInterest.id,
-        isInterested: existingInterest.isInterested,
-        notes: existingInterest.notes,
-        createdAt: existingInterest.createdAt,
-        updatedAt: existingInterest.updatedAt,
-      } : null,
-    };
+    return SupplierInterestMapper.toOrderWithSupplierInterest(order, existingInterest);
   }
 
   // update supplier interest status  
@@ -227,9 +203,9 @@ export class SupplierInterestsService {
       throw new NotFoundException('Order not found');
     }
 
-    // Check if supplier exists and has SUPPLIER role
+    
     const supplier = await this.userRepository.findOne({ 
-      where: { id: supplierId, role: UserRole.SUPPLIER } 
+      where: { id: supplierId } 
     });
     if (!supplier) {
       throw new NotFoundException('Supplier not found');
@@ -237,14 +213,27 @@ export class SupplierInterestsService {
 
     // Check if supplier already has interest in this order
     const existingInterest = await this.supplierInterestRepository.findOne({
-      where: { supplier: { id: supplierId }, order: { id: orderId } }
+      where: { supplier: { id: supplierId }, order: { id: orderId } },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product']
     });
 
     if (existingInterest) {
       // Update existing interest
       existingInterest.isInterested = isInterested;
       existingInterest.notes = notes || existingInterest.notes;
-      return await this.supplierInterestRepository.save(existingInterest);
+      const savedInterest = await this.supplierInterestRepository.save(existingInterest);
+      
+      // Fetch with relations for mapping
+      const interestWithRelations = await this.supplierInterestRepository.findOne({
+        where: { id: savedInterest.id },
+        relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product']
+      });
+      
+      if (!interestWithRelations) {
+        throw new NotFoundException('Failed to update supplier interest');
+      }
+      
+      return SupplierInterestMapper.toResponse(interestWithRelations);
     }
 
     // Create new interest
@@ -255,7 +244,19 @@ export class SupplierInterestsService {
       notes: notes || null,
     });
 
-    return await this.supplierInterestRepository.save(supplierInterest);
+    const savedInterest = await this.supplierInterestRepository.save(supplierInterest);
+    
+    // Fetch with relations for mapping
+    const interestWithRelations = await this.supplierInterestRepository.findOne({
+      where: { id: savedInterest.id },
+      relations: ['supplier', 'order', 'order.customer', 'order.items', 'order.items.product']
+    });
+    
+    if (!interestWithRelations) {
+      throw new NotFoundException('Failed to create supplier interest');
+    }
+    
+    return SupplierInterestMapper.toResponse(interestWithRelations);
   }
 
 }

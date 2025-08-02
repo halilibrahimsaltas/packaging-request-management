@@ -1,4 +1,5 @@
 import { SupplierInterest } from '../entities/supplier-interest.entity';
+import { Order } from '../../orders/entities/order.entity';
 
 export class SupplierInterestMapper {
   /**
@@ -69,5 +70,45 @@ export class SupplierInterestMapper {
    */
   static toResponseArray(interests: SupplierInterest[]) {
     return interests.map(interest => this.toResponse(interest));
+  }
+
+  /**
+   * Maps Order entity with supplier interest to DTO
+   */
+  static toOrderWithSupplierInterest(order: Order, supplierInterest: any) {
+    return {
+      id: order.id,
+      customer: {
+        id: order.customer.id,
+        username: order.customer.username,
+      },
+      items: order.items.map(item => ({
+        id: item.id,
+        product: {
+          id: item.product.id,
+          name: item.product.name,
+          type: item.product.type,
+        },
+        quantity: item.quantity,
+      })),
+      createdAt: order.createdAt,
+      supplierInterest: supplierInterest ? {
+        id: supplierInterest.id,
+        isInterested: supplierInterest.isInterested,
+        notes: supplierInterest.notes,
+        createdAt: supplierInterest.createdAt,
+        updatedAt: supplierInterest.updatedAt,
+      } : null,
+    };
+  }
+
+  /**
+   * Maps array of Order entities with supplier interest to DTOs
+   */
+  static toOrderWithSupplierInterestArray(orders: Order[], supplierInterests: any[]) {
+    return orders.map(order => {
+      const interest = supplierInterests.find(si => si.orderId === order.id);
+      return this.toOrderWithSupplierInterest(order, interest);
+    });
   }
 }

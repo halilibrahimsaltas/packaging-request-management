@@ -89,12 +89,7 @@ export class SupplierInterestsController {
     return this.supplierInterestsService.findOne(+id);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
-  @Roles(UserRole.SUPPLIER, UserRole.ADMIN)
-  update(@Param('id') id: string, @Body() updateSupplierInterestDto: UpdateSupplierInterestDto) {
-    return this.supplierInterestsService.update(+id, updateSupplierInterestDto);
-  }
+
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)
