@@ -66,127 +66,15 @@ export default function AdminRequestsPage() {
         setOrders(allOrders);
       } catch (error) {
         console.error("Error loading orders:", error);
-
-        // Fallback to mock data if API fails
-        const mockOrders: Order[] = [
-          {
-            id: 1,
-            customerId: 3,
-            customerName: "johndoe",
-            createdAt: "2025-08-02T07:55:28.451Z",
-            items: [
-              {
-                id: 2,
-                productId: 2,
-                productName: "Custom Packaging Box",
-                productType: "PACKAGING",
-                quantity: 50,
-              },
-              {
-                id: 1,
-                productId: 3,
-                productName: "Updated Product Name 1",
-                productType: "LABELS",
-                quantity: 100,
-              },
-            ],
-            supplierInterests: [
-              {
-                id: 1,
-                supplierId: 4,
-                supplierName: "supplier1",
-                isInterested: true,
-                notes:
-                  "I'm interested in this order and can provide competitive pricing",
-                createdAt: "2025-08-02T09:03:29.701Z",
-                updatedAt: "2025-08-02T12:49:58.219Z",
-              },
-              {
-                id: 6,
-                supplierId: 5,
-                supplierName: "supplier2",
-                isInterested: true,
-                notes:
-                  "I'm interested in this order and can provide competitive pricing",
-                createdAt: "2025-08-02T13:27:44.397Z",
-                updatedAt: "2025-08-02T13:27:44.397Z",
-              },
-            ],
-            interestedSuppliersCount: 2,
-            totalSuppliersCount: 2,
-          },
-          {
-            id: 2,
-            customerId: 5,
-            customerName: "customer1",
-            createdAt: "2025-08-01T10:30:15.123Z",
-            items: [
-              {
-                id: 3,
-                productId: 1,
-                productName: "Plastic Container",
-                productType: "CONTAINERS",
-                quantity: 25,
-              },
-            ],
-            supplierInterests: [
-              {
-                id: 2,
-                supplierId: 6,
-                supplierName: "supplier3",
-                isInterested: false,
-                createdAt: "2025-08-01T11:15:22.456Z",
-                updatedAt: "2025-08-01T11:15:22.456Z",
-              },
-            ],
-            interestedSuppliersCount: 0,
-            totalSuppliersCount: 1,
-          },
-          {
-            id: 3,
-            customerId: 2,
-            customerName: "admin",
-            createdAt: "2025-07-30T14:20:10.789Z",
-            items: [
-              {
-                id: 4,
-                productId: 4,
-                productName: "Glass Bottles",
-                productType: "CONTAINERS",
-                quantity: 100,
-              },
-              {
-                id: 5,
-                productId: 5,
-                productName: "Metal Cans",
-                productType: "CONTAINERS",
-                quantity: 75,
-              },
-            ],
-            supplierInterests: [
-              {
-                id: 3,
-                supplierId: 4,
-                supplierName: "supplier1",
-                isInterested: true,
-                notes: "We can provide high-quality glass bottles",
-                createdAt: "2025-07-30T15:30:22.123Z",
-                updatedAt: "2025-07-30T15:30:22.123Z",
-              },
-            ],
-            interestedSuppliersCount: 1,
-            totalSuppliersCount: 1,
-          },
-        ];
-
-        setOrders(mockOrders);
+        showError("Talepler yüklenirken hata oluştu");
+        setOrders([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadOrders();
-  }, []);
+  }, [showError]);
 
   const handleViewDetails = async (order: Order) => {
     try {

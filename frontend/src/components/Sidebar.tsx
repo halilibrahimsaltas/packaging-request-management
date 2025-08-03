@@ -1,4 +1,4 @@
-// Redesigned Sidebar inspired by the login page's gradient theme and structure
+// Redesigned Sidebar to match the header's purple gradient theme
 
 "use client";
 
@@ -33,7 +33,7 @@ import {
   Person,
   ShoppingCart,
 } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useCart } from "@/context/CartContext";
@@ -58,6 +58,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
   const { t } = useLanguage();
   const { getTotalItems } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
   const theme = useTheme();
 
   const handleLogout = () => {
@@ -69,17 +70,17 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
     [UserRole.ADMIN]: {
       icon: <Business />,
       text: "Yönetici",
-      color: "error" as const,
+      color: "#ff6b6b",
     },
     [UserRole.SUPPLIER]: {
       icon: <Factory />,
       text: "Tedarikçi",
-      color: "warning" as const,
+      color: "#4ecdc4",
     },
     [UserRole.CUSTOMER]: {
       icon: <Person />,
       text: "Müşteri",
-      color: "primary" as const,
+      color: "#45b7d1",
     },
   };
 
@@ -126,6 +127,11 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
     ],
     [UserRole.SUPPLIER]: [
       {
+        text: t("dashboard.customer.productCatalog"),
+        icon: <Inventory />,
+        href: "/supplier/products",
+      },
+      {
         text: t("dashboard.supplier.viewRequests"),
         icon: <Assignment />,
         href: "/supplier/requests",
@@ -149,77 +155,194 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
-          bgcolor: "#1f1f2e",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
           borderRight: "none",
           boxSizing: "border-box",
+          boxShadow: "4px 0 20px rgba(0,0,0,0.1)",
         },
       }}
     >
       <Box sx={{ p: 3 }}>
+        {/* Logo Section */}
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          mb={3}
+          mb={4}
         >
-          <Typography variant="h6" fontWeight={700} color="white">
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            color="white"
+            sx={{
+              background: "linear-gradient(45deg, #ffffff 30%, #f0f0f0 90%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+          >
             {t("app.title")}
           </Typography>
         </Box>
 
+        {/* User Role Badge */}
+        {currentRoleInfo && (
+          <Box
+            sx={{
+              mb: 3,
+              p: 2,
+              borderRadius: 2,
+              background: "rgba(255,255,255,0.1)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: 1,
+                  backgroundColor: currentRoleInfo.color,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {currentRoleInfo.icon}
+              </Box>
+              <Typography variant="body2" fontWeight={600}>
+                {currentRoleInfo.text}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+
+        {/* Menu Section */}
         <Typography
           variant="overline"
-          color="rgba(255,255,255,0.6)"
-          gutterBottom
+          sx={{
+            color: "rgba(255,255,255,0.8)",
+            fontWeight: 600,
+            letterSpacing: 1,
+            mb: 2,
+            display: "block",
+          }}
         >
           {t("common.menu")}
         </Typography>
-        <List>
-          {currentMenuItems.map((item, i) => (
-            <ListItem key={i} disablePadding>
-              <ListItemButton
-                onClick={() => router.push(item.href)}
-                sx={{ borderRadius: 1, mb: 1, color: "white" }}
-              >
-                <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-                {item.badge && item.badge > 0 && (
-                  <Chip
-                    label={item.badge}
-                    size="small"
+
+        <List sx={{ mb: 3 }}>
+          {currentMenuItems.map((item, i) => {
+            const isActive = pathname === item.href;
+            return (
+              <ListItem key={i} disablePadding sx={{ mb: 1 }}>
+                <ListItemButton
+                  onClick={() => router.push(item.href)}
+                  sx={{
+                    borderRadius: 2,
+                    color: "white",
+                    background: isActive
+                      ? "rgba(255,255,255,0.2)"
+                      : "transparent",
+                    border: isActive
+                      ? "1px solid rgba(255,255,255,0.3)"
+                      : "1px solid transparent",
+                    "&:hover": {
+                      background: "rgba(255,255,255,0.15)",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      transform: "translateX(4px)",
+                    },
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <ListItemIcon
                     sx={{
-                      backgroundColor: "#667eea",
-                      color: "white",
-                      fontSize: "0.75rem",
-                      height: "20px",
-                      minWidth: "20px",
+                      color: isActive ? "white" : "rgba(255,255,255,0.8)",
+                      minWidth: 40,
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    sx={{
+                      "& .MuiTypography-root": {
+                        fontWeight: isActive ? 600 : 500,
+                        fontSize: "0.9rem",
+                      },
                     }}
                   />
-                )}
-              </ListItemButton>
-            </ListItem>
-          ))}
+                  {item.badge && item.badge > 0 && (
+                    <Chip
+                      label={item.badge}
+                      size="small"
+                      sx={{
+                        backgroundColor: "#ff6b6b",
+                        color: "white",
+                        fontSize: "0.75rem",
+                        height: "20px",
+                        minWidth: "20px",
+                        fontWeight: 600,
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
 
-        <Divider sx={{ my: 3, borderColor: "rgba(255,255,255,0.2)" }} />
+        <Divider
+          sx={{
+            my: 3,
+            borderColor: "rgba(255,255,255,0.2)",
+            opacity: 0.6,
+          }}
+        />
 
+        {/* User Section */}
         <Typography
           variant="overline"
-          color="rgba(255,255,255,0.6)"
-          gutterBottom
+          sx={{
+            color: "rgba(255,255,255,0.8)",
+            fontWeight: 600,
+            letterSpacing: 1,
+            mb: 2,
+            display: "block",
+          }}
         >
           {t("common.user")}
         </Typography>
+
         <List>
           <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout} sx={{ borderRadius: 1 }}>
-              <ListItemIcon sx={{ color: "#f44336" }}>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 2,
+                color: "#ff6b6b",
+                border: "1px solid rgba(255,107,107,0.3)",
+                "&:hover": {
+                  background: "rgba(255,107,107,0.1)",
+                  border: "1px solid rgba(255,107,107,0.5)",
+                  transform: "translateX(4px)",
+                },
+                transition: "all 0.3s ease",
+              }}
+            >
+              <ListItemIcon sx={{ color: "#ff6b6b", minWidth: 40 }}>
                 <Logout />
               </ListItemIcon>
               <ListItemText
                 primary={t("common.logout")}
-                sx={{ color: "#f44336" }}
+                sx={{
+                  "& .MuiTypography-root": {
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                  },
+                }}
               />
             </ListItemButton>
           </ListItem>

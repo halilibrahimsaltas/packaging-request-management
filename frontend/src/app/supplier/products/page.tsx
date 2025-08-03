@@ -25,62 +25,46 @@ import {
   Skeleton,
   IconButton,
 } from "@mui/material";
-import {
-  Search,
-  Inventory,
-  FilterList,
-  Clear,
-  ShoppingCart,
-  CheckCircle,
-  Add,
-} from "@mui/icons-material";
+import { Search, Inventory, FilterList, Clear } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import { UserRole } from "@/types/role.type";
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/Toast";
-import { useCart } from "@/context/CartContext";
-import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { Product } from "@/types/order.types";
 import { productsApi } from "@/lib";
 
-export default function CustomerProductsPage() {
+export default function SupplierProductsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { showSuccess, showError, showInfo, showWarning } = useToast();
-  const { addToCart, getCartItem, getTotalItems } = useCart();
-  const router = useRouter();
+  const { showSuccess, showError, showInfo } = useToast();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
-  const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
 
   // Load products from backend
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        console.log("Loading products from backend..."); // Debug
+        console.log("Loading products from backend...");
 
         // Get active products
-        console.log("Calling getActiveProducts..."); // Debug
         const activeProducts = await productsApi.getActiveProducts();
-        console.log("Active products received:", activeProducts); // Debug
+        console.log("Active products received:", activeProducts);
         setProducts(activeProducts);
         setFilteredProducts(activeProducts);
 
         // Get available product types
-        console.log("Calling getActiveProductTypes..."); // Debug
         const types = await productsApi.getActiveProductTypes();
-        console.log("Product types received:", types); // Debug
+        console.log("Product types received:", types);
         setAvailableTypes(types);
-
-        // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
       } catch (error) {
         console.error("Error loading products:", error);
         showError("Ürünler yüklenirken hata oluştu");
@@ -95,7 +79,7 @@ export default function CustomerProductsPage() {
     loadProducts();
   }, [showError]);
 
-  // filter
+  // Filter products
   useEffect(() => {
     let filtered = products.filter((product) => product.isActive);
 
@@ -116,15 +100,7 @@ export default function CustomerProductsPage() {
     }
 
     setFilteredProducts(filtered);
-
-    // Show filter results - sadece bir kez göster
-    if (
-      (searchTerm || selectedTypes.length > 0) &&
-      filtered.length !== products.length
-    ) {
-      // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
-    }
-  }, [products, searchTerm, selectedTypes, showInfo]);
+  }, [products, searchTerm, selectedTypes]);
 
   const handleTypeChange = (event: any) => {
     const value = event.target.value;
@@ -134,34 +110,6 @@ export default function CustomerProductsPage() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedTypes([]);
-  };
-
-  const handleViewProduct = (product: Product) => {
-    console.log("View product:", product);
-  };
-
-  const handleAddToCart = (product: Product) => {
-    const quantity = quantities[product.id] || 1;
-    addToCart(product.id, product.name, product.type, quantity);
-    showSuccess(`${product.name} sepete eklendi (${quantity} adet)`);
-
-    // Miktarı sıfırla
-    setQuantities((prev) => ({
-      ...prev,
-      [product.id]: 1,
-    }));
-  };
-
-  const handleQuantityChange = (productId: number, value: string) => {
-    const numValue = parseInt(value) || 1;
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: Math.max(1, numValue),
-    }));
-  };
-
-  const handleCompleteOrder = () => {
-    router.push("/customer/orders");
   };
 
   const getTypeColor = (type: string) => {
@@ -175,10 +123,8 @@ export default function CustomerProductsPage() {
     return colors[type] || "#757575";
   };
 
-  const hasItemsInCart = getTotalItems() > 0;
-
   return (
-    <AuthGuard requiredRole={UserRole.CUSTOMER}>
+    <AuthGuard requiredRole={UserRole.SUPPLIER}>
       <Box sx={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
         {/* Sidebar */}
         <Sidebar />
@@ -284,27 +230,6 @@ export default function CustomerProductsPage() {
                       Filtreleri Temizle
                     </Button>
                   )}
-
-                  {/* Dynamic Action Button */}
-                  <Box sx={{ ml: "auto" }}>
-                    {hasItemsInCart && (
-                      <Button
-                        variant="contained"
-                        startIcon={<CheckCircle />}
-                        onClick={handleCompleteOrder}
-                        sx={{
-                          background:
-                            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                          "&:hover": {
-                            background:
-                              "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
-                          },
-                        }}
-                      >
-                        Talep Tamamla ({getTotalItems()})
-                      </Button>
-                    )}
-                  </Box>
                 </Box>
 
                 {/* Results Count */}
@@ -351,106 +276,45 @@ export default function CustomerProductsPage() {
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          Miktar
-                        </TableCell>
-                        <TableCell
-                          sx={{ fontWeight: 600, textAlign: "center" }}
-                        >
-                          İşlemler
+                          Durum
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {filteredProducts.map((product) => {
-                        const cartItem = getCartItem(product.id);
-                        return (
-                          <TableRow
-                            key={product.id}
-                            sx={{
-                              "&:hover": {
-                                backgroundColor: "rgba(0,0,0,0.02)",
-                              },
-                            }}
-                          >
-                            <TableCell>
-                              <Typography variant="body1" fontWeight={500}>
-                                {product.name}
-                              </Typography>
-                              {cartItem && (
-                                <Typography
-                                  variant="caption"
-                                  color="success.main"
-                                >
-                                  Sepette: {cartItem.quantity} adet
-                                </Typography>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={product.type}
-                                size="small"
-                                sx={{
-                                  backgroundColor: getTypeColor(product.type),
-                                  color: "white",
-                                  fontWeight: 600,
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ textAlign: "center" }}>
-                              <TextField
-                                type="number"
-                                size="small"
-                                value={quantities[product.id] || 1}
-                                onChange={(e) =>
-                                  handleQuantityChange(
-                                    product.id,
-                                    e.target.value
-                                  )
-                                }
-                                inputProps={{
-                                  min: 1,
-                                  style: { textAlign: "center", width: "60px" },
-                                }}
-                                sx={{
-                                  "& .MuiOutlinedInput-root": {
-                                    borderRadius: 1,
-                                    width: "80px",
-                                  },
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ textAlign: "center" }}>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  gap: 1,
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  startIcon={<ShoppingCart />}
-                                  onClick={() => handleAddToCart(product)}
-                                  sx={{
-                                    background:
-                                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                    "&:hover": {
-                                      background:
-                                        "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
-                                    },
-                                    fontSize: "0.75rem",
-                                    px: 1.5,
-                                    py: 0.5,
-                                  }}
-                                >
-                                  Sepete Ekle
-                                </Button>
-                              </Box>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {filteredProducts.map((product) => (
+                        <TableRow
+                          key={product.id}
+                          sx={{
+                            "&:hover": {
+                              backgroundColor: "rgba(0,0,0,0.02)",
+                            },
+                          }}
+                        >
+                          <TableCell>
+                            <Typography variant="body1" fontWeight={500}>
+                              {product.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={product.type}
+                              size="small"
+                              sx={{
+                                backgroundColor: getTypeColor(product.type),
+                                color: "white",
+                                fontWeight: 600,
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={product.isActive ? "Aktif" : "Pasif"}
+                              color={product.isActive ? "success" : "default"}
+                              size="small"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 </TableContainer>

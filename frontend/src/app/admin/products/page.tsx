@@ -97,43 +97,9 @@ export default function AdminProductsPage() {
       } catch (error) {
         console.error("Error loading products:", error);
         showError("Ürünler yüklenirken hata oluştu");
-
-        // Fallback to mock data if API fails
-        const mockProducts: Product[] = [
-          {
-            id: 1,
-            name: "Karton Kutu - Küçük Boy",
-            type: "Karton Kutu",
-            isActive: true,
-          },
-          {
-            id: 2,
-            name: "Karton Kutu - Orta Boy",
-            type: "Karton Kutu",
-            isActive: true,
-          },
-          {
-            id: 3,
-            name: "Karton Kutu - Büyük Boy",
-            type: "Karton Kutu",
-            isActive: false,
-          },
-          {
-            id: 4,
-            name: "Plastik Poşet - Şeffaf",
-            type: "Plastik Ambalaj",
-            isActive: true,
-          },
-          {
-            id: 5,
-            name: "Plastik Poşet - Renkli",
-            type: "Plastik Ambalaj",
-            isActive: true,
-          },
-        ];
-        setProducts(mockProducts);
-        setFilteredProducts(mockProducts);
-        setAvailableTypes([...new Set(mockProducts.map((p) => p.type))]);
+        setProducts([]);
+        setFilteredProducts([]);
+        setAvailableTypes([]);
       } finally {
         setLoading(false);
       }

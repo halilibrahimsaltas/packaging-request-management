@@ -51,85 +51,7 @@ export default function SupplierInterestsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-
-  // Mock order data for fallback
-  const mockOrders: Record<number, Order> = {
-    1: {
-      id: 1,
-      customerId: 1,
-      customerName: "Ahmet Yılmaz",
-      createdAt: "2025-08-02T09:00:00.000Z",
-      items: [
-        {
-          id: 1,
-          productId: 1,
-          productName: "Elektronik Ambalaj Kutusu",
-          productType: "Karton",
-          quantity: 500,
-        },
-        {
-          id: 2,
-          productId: 2,
-          productName: "Plastik Koruma Köpüğü",
-          productType: "Köpük",
-          quantity: 1000,
-        },
-      ],
-      supplierInterests: [],
-      interestedSuppliersCount: 2,
-      totalSuppliersCount: 5,
-    },
-    2: {
-      id: 2,
-      customerId: 2,
-      customerName: "Fatma Demir",
-      createdAt: "2025-08-01T11:00:00.000Z",
-      items: [
-        {
-          id: 3,
-          productId: 3,
-          productName: "Gıda Ambalaj Poşeti",
-          productType: "Plastik",
-          quantity: 1000,
-        },
-        {
-          id: 4,
-          productId: 4,
-          productName: "Alüminyum Folyo",
-          productType: "Alüminyum",
-          quantity: 500,
-        },
-      ],
-      supplierInterests: [],
-      interestedSuppliersCount: 1,
-      totalSuppliersCount: 3,
-    },
-    3: {
-      id: 3,
-      customerId: 3,
-      customerName: "Mehmet Kaya",
-      createdAt: "2025-08-03T10:00:00.000Z",
-      items: [
-        {
-          id: 5,
-          productId: 5,
-          productName: "Tekstil Kumaş Ambalajı",
-          productType: "Kumaş",
-          quantity: 250,
-        },
-        {
-          id: 6,
-          productId: 6,
-          productName: "Karton Kutu",
-          productType: "Karton",
-          quantity: 100,
-        },
-      ],
-      supplierInterests: [],
-      interestedSuppliersCount: 3,
-      totalSuppliersCount: 4,
-    },
-  };
+  const [orderDetails, setOrderDetails] = useState<Record<number, any>>({});
 
   // Load supplier interests from backend
   useEffect(() => {
@@ -142,59 +64,41 @@ export default function SupplierInterestsPage() {
         const supplierInterests = await supplierInterestsApi.getMyInterests();
         console.log("Supplier interests received:", supplierInterests);
 
+        if (!Array.isArray(supplierInterests)) {
+          console.error("Invalid response format:", supplierInterests);
+          throw new Error("Invalid response format");
+        }
+
         // Transform backend data to match frontend structure
         const transformedInterests: SupplierInterest[] = supplierInterests.map(
-          (interest: BackendSupplierInterestResponse) => ({
-            id: interest.id,
-            orderId: interest.order.id,
-            supplierId: interest.supplier.id,
-            supplierName: interest.supplier.username,
-            isInterested: interest.isInterested,
-            notes: interest.notes || "",
-            createdAt: interest.createdAt,
-            updatedAt: interest.updatedAt,
-          })
+          (interest: BackendSupplierInterestResponse) => {
+            console.log("Processing interest:", interest);
+
+            // Store order details for use in display functions
+            setOrderDetails((prev) => ({
+              ...prev,
+              [interest.order.id]: interest.order,
+            }));
+
+            return {
+              id: interest.id,
+              orderId: interest.order.id,
+              supplierId: interest.supplier.id,
+              supplierName: interest.supplier.username,
+              isInterested: interest.isInterested,
+              notes: interest.notes || "",
+              createdAt: interest.createdAt,
+              updatedAt: interest.updatedAt,
+            };
+          }
         );
 
+        console.log("Transformed interests:", transformedInterests);
         setInterests(transformedInterests);
       } catch (error) {
         console.error("Error loading supplier interests:", error);
         showError("İlgiler yüklenirken hata oluştu");
-
-        // Fallback to mock data if API fails
-        const mockInterests: SupplierInterest[] = [
-          {
-            id: 1,
-            orderId: 1,
-            supplierId: user?.id || 0,
-            supplierName: user?.username || "supplier1",
-            isInterested: true,
-            notes: "Bu talebe ilgileniyorum",
-            createdAt: "2025-08-02T09:03:29.701Z",
-            updatedAt: "2025-08-02T12:49:58.219Z",
-          },
-          {
-            id: 2,
-            orderId: 2,
-            supplierId: user?.id || 0,
-            supplierName: user?.username || "supplier1",
-            isInterested: false,
-            notes: "Bu talebe ilgilenmiyorum",
-            createdAt: "2025-08-01T11:15:22.456Z",
-            updatedAt: "2025-08-01T11:15:22.456Z",
-          },
-          {
-            id: 3,
-            orderId: 3,
-            supplierId: user?.id || 0,
-            supplierName: user?.username || "supplier1",
-            isInterested: true,
-            notes: "Bu talebe ilgileniyorum",
-            createdAt: "2025-08-03T10:30:15.123Z",
-            updatedAt: "2025-08-03T10:30:15.123Z",
-          },
-        ];
-        setInterests(mockInterests);
+        setInterests([]);
       } finally {
         setLoading(false);
       }
@@ -213,45 +117,35 @@ export default function SupplierInterestsPage() {
 
       console.log("Loading order details for orderId:", interest.orderId);
 
-      // Try to get order details from backend
-      try {
-        const orderDetails =
-          (await supplierInterestsApi.getOrderDetailForSupplier(
-            interest.orderId
-          )) as unknown as BackendOrderDetailResponse;
+      // Get order details from backend
+      const orderDetails =
+        (await supplierInterestsApi.getOrderDetailForSupplier(
+          interest.orderId
+        )) as unknown as BackendOrderDetailResponse;
 
-        // Transform backend order data to match frontend structure
-        const transformedOrder: Order = {
-          id: orderDetails.id,
-          customerId: orderDetails.customer.id,
-          customerName: orderDetails.customer.username,
-          createdAt: orderDetails.createdAt,
-          items: orderDetails.items.map((item) => ({
-            id: item.id,
-            productId: item.product.id,
-            productName: item.product.name,
-            productType: item.product.type,
-            quantity: item.quantity,
-          })),
-          supplierInterests: [],
-          interestedSuppliersCount: 0,
-          totalSuppliersCount: 0,
-        };
+      console.log("Order details received:", orderDetails);
 
-        setSelectedOrder(transformedOrder);
-        setDetailDialogOpen(true);
-      } catch (apiError) {
-        console.error("API Error, using mock data:", apiError);
+      // Transform backend order data to match frontend structure
+      const transformedOrder: Order = {
+        id: orderDetails.id,
+        customerId: orderDetails.customer.id,
+        customerName: orderDetails.customer.username,
+        createdAt: orderDetails.createdAt,
+        items: orderDetails.items.map((item) => ({
+          id: item.id,
+          productId: item.product.id,
+          productName: item.product.name,
+          productType: item.product.type,
+          quantity: item.quantity,
+        })),
+        supplierInterests: [],
+        interestedSuppliersCount: 0,
+        totalSuppliersCount: 0,
+      };
 
-        // Fallback to mock data if API fails
-        const mockOrder = mockOrders[interest.orderId];
-        if (mockOrder) {
-          setSelectedOrder(mockOrder);
-          setDetailDialogOpen(true);
-        } else {
-          showError("Talep detayları bulunamadı");
-        }
-      }
+      console.log("Transformed order:", transformedOrder);
+      setSelectedOrder(transformedOrder);
+      setDetailDialogOpen(true);
     } catch (error) {
       console.error("Error loading order details:", error);
       showError("Talep detayları yüklenirken hata oluştu");
@@ -268,45 +162,41 @@ export default function SupplierInterestsPage() {
     });
   };
 
-  // Function to get product request content from real or mock data
-  const getProductRequestContent = (orderId: number) => {
-    // Try to get from selected order first (if details are loaded)
+  // Function to get product types from backend data
+  const getProductTypes = (orderId: number): string[] => {
+    // Get from backend order details
+    const backendOrder = orderDetails[orderId];
+    if (backendOrder && backendOrder.items) {
+      const types = [
+        ...new Set(backendOrder.items.map((item: any) => item.product.type)),
+      ];
+      return types.filter((type): type is string => typeof type === "string");
+    }
+
+    // Get from selected order (if details are loaded)
     if (selectedOrder && selectedOrder.id === orderId) {
-      const productTypes = [
+      const types = [
         ...new Set(selectedOrder.items.map((item) => item.productType)),
       ];
-      return `${productTypes.join(", ")} ürünleri için ambalaj talebi`;
+      return types.filter((type): type is string => typeof type === "string");
     }
 
-    // Fallback to mock data
-    const mockOrder = mockOrders[orderId];
-    if (mockOrder) {
-      const productTypes = [
-        ...new Set(mockOrder.items.map((item) => item.productType)),
-      ];
-      return `${productTypes.join(", ")} ürünleri için ambalaj talebi`;
-    }
-    return "Ürün talep içeriği";
-  };
-
-  // Function to get product types from real or mock data
-  const getProductTypes = (orderId: number) => {
-    // Try to get from selected order first (if details are loaded)
-    if (selectedOrder && selectedOrder.id === orderId) {
-      return [...new Set(selectedOrder.items.map((item) => item.productType))];
-    }
-
-    // Fallback to mock data
-    const mockOrder = mockOrders[orderId];
-    if (mockOrder) {
-      return [...new Set(mockOrder.items.map((item) => item.productType))];
-    }
     return ["Genel"];
   };
 
-  // Function to get product quantity from real or mock data
+  // Function to get product quantity from backend data
   const getProductQuantity = (orderId: number) => {
-    // Try to get from selected order first (if details are loaded)
+    // Get from backend order details
+    const backendOrder = orderDetails[orderId];
+    if (backendOrder && backendOrder.items) {
+      const totalQuantity = backendOrder.items.reduce(
+        (sum: number, item: any) => sum + item.quantity,
+        0
+      );
+      return `${totalQuantity} adet`;
+    }
+
+    // Get from selected order (if details are loaded)
     if (selectedOrder && selectedOrder.id === orderId) {
       const totalQuantity = selectedOrder.items.reduce(
         (sum, item) => sum + item.quantity,
@@ -315,16 +205,7 @@ export default function SupplierInterestsPage() {
       return `${totalQuantity} adet`;
     }
 
-    // Fallback to mock data
-    const mockOrder = mockOrders[orderId];
-    if (mockOrder) {
-      const totalQuantity = mockOrder.items.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      return `${totalQuantity} adet`;
-    }
-    return "100 adet";
+    return "0 adet";
   };
 
   return (
@@ -378,9 +259,6 @@ export default function SupplierInterestsPage() {
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
                         <TableCell sx={{ fontWeight: 600 }}>Talep ID</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Talep İçeriği
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>
                           Ürün Türleri
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
@@ -407,11 +285,6 @@ export default function SupplierInterestsPage() {
                           <TableCell>
                             <Typography variant="body1" fontWeight={500}>
                               #{interest.orderId}
-                            </Typography>
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" color="text.secondary">
-                              {getProductRequestContent(interest.orderId)}
                             </Typography>
                           </TableCell>
                           <TableCell>

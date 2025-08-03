@@ -71,52 +71,8 @@ export default function AdminUsersPage() {
       } catch (error) {
         console.error("Error loading users:", error);
         showError("Kullanıcılar yüklenirken hata oluştu");
-
-        // Fallback to mock data if API fails
-        const mockUsers: User[] = [
-          {
-            id: 1,
-            username: "admin",
-            email: "admin@example.com",
-            role: "ADMIN",
-            address: "İstanbul, Türkiye",
-            phone: "+90 555 123 4567",
-          },
-          {
-            id: 2,
-            username: "johndoe",
-            email: "john@example.com",
-            role: "CUSTOMER",
-            address: "Ankara, Türkiye",
-            phone: "+90 555 234 5678",
-          },
-          {
-            id: 3,
-            username: "supplier1",
-            email: "supplier1@example.com",
-            role: "SUPPLIER",
-            address: "İzmir, Türkiye",
-            phone: "+90 555 345 6789",
-          },
-          {
-            id: 4,
-            username: "supplier2",
-            email: "supplier2@example.com",
-            role: "SUPPLIER",
-            address: "Bursa, Türkiye",
-            phone: "+90 555 456 7890",
-          },
-          {
-            id: 5,
-            username: "customer1",
-            email: "customer1@example.com",
-            role: "CUSTOMER",
-            address: "Antalya, Türkiye",
-            phone: "+90 555 567 8901",
-          },
-        ];
-        setUsers(mockUsers);
-        setFilteredUsers(mockUsers);
+        setUsers([]);
+        setFilteredUsers([]);
       } finally {
         setLoading(false);
       }
