@@ -108,7 +108,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
         href: "/customer/products",
       },
       {
-        text: "Siparişlerim",
+        text: t("dashboard.customer.cart"),
         icon: <ShoppingCart />,
         href: "/customer/orders",
         badge: getTotalItems(),
@@ -217,17 +217,6 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           {t("common.user")}
         </Typography>
         <List>
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => router.push("/settings")}
-              sx={{ borderRadius: 1, mb: 1 }}
-            >
-              <ListItemIcon sx={{ color: "white" }}>
-                <Settings />
-              </ListItemIcon>
-              <ListItemText primary={t("common.settings")} />
-            </ListItemButton>
-          </ListItem>
           <ListItem disablePadding>
             <ListItemButton onClick={handleLogout} sx={{ borderRadius: 1 }}>
               <ListItemIcon sx={{ color: "#f44336" }}>

@@ -99,6 +99,7 @@ export const en = {
   "dashboard.customer.productCatalog": "Product Catalog",
   "dashboard.customer.productCatalogDesc": "View product types",
   "dashboard.customer.createRequest": "Create New Request",
+  "dashboard.customer.cart": "Cart",
   "dashboard.customer.createRequestDesc":
     "Create order requests with different product types",
   "dashboard.customer.myRequests": "My Requests",

@@ -7,8 +7,8 @@ import {
   useContext,
   ReactNode,
 } from "react";
-import { Snackbar, Alert } from "@mui/material";
-import { CheckCircle, Error, Info, Warning } from "@mui/icons-material";
+import { Snackbar, Alert, IconButton } from "@mui/material";
+import { CheckCircle, Error, Info, Warning, Close } from "@mui/icons-material";
 
 interface ToastContextType {
   showSuccess: (message: string, duration?: number) => void;
@@ -68,15 +68,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const getIcon = (type: string) => {
     switch (type) {
       case "success":
-        return <CheckCircle />;
+        return <CheckCircle fontSize="small" />;
       case "error":
-        return <Error />;
+        return <Error fontSize="small" />;
       case "warning":
-        return <Warning />;
+        return <Warning fontSize="small" />;
       case "info":
-        return <Info />;
+        return <Info fontSize="small" />;
       default:
-        return <Info />;
+        return <Info fontSize="small" />;
     }
   };
 
@@ -104,8 +104,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       >
         <Alert
           onClose={handleClose}
-          severity="info"
+          severity={type}
           icon={getIcon(type)}
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleClose}
+              sx={{ color: "white" }}
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          }
           sx={{
             width: "100%",
             maxWidth: { xs: "calc(100vw - 32px)", sm: 400 },

@@ -99,6 +99,7 @@ export const tr = {
   "dashboard.customer.productCatalog": "Ürün Katalogu",
   "dashboard.customer.productCatalogDesc": "Ürün türlerini görüntüle",
   "dashboard.customer.createRequest": "Yeni Talep Oluştur",
+  "dashboard.customer.cart": "Sepetim",
   "dashboard.customer.createRequestDesc":
     "Farklı ürün türlerinden sipariş talebi oluştur",
   "dashboard.customer.myRequests": "Taleplerim",

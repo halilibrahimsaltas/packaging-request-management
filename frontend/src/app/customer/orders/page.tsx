@@ -28,6 +28,7 @@ import {
   Inventory,
   Add,
   Remove,
+  Clear,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -38,6 +39,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import { ordersApi } from "@/lib";
 
 export default function CustomerOrdersPage() {
   const { user } = useAuth();
@@ -63,6 +65,11 @@ export default function CustomerOrdersPage() {
     showInfo("Ürün sepetten kaldırıldı");
   };
 
+  const handleClearCart = () => {
+    clearCart();
+    showInfo("Sepet temizlendi");
+  };
+
   const handleCompleteOrder = () => {
     if (items.length === 0) {
       showError("Sepetiniz boş!");
@@ -77,9 +84,14 @@ export default function CustomerOrdersPage() {
 
   const confirmOrder = async () => {
     try {
+      if (!user?.id) {
+        showError("Kullanıcı bilgisi bulunamadı!");
+        return;
+      }
+
       // Backend'e gönderilecek veri formatı
       const orderData = {
-        customerId: user?.id,
+        customerId: user.id,
         items: items.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -88,12 +100,15 @@ export default function CustomerOrdersPage() {
 
       console.log("Sipariş verisi:", orderData);
 
-      // TODO: Backend API çağrısı
-      // const response = await apiService.createOrder(orderData);
+      // Backend API çağrısı
+      const response = await ordersApi.createOrder(orderData);
 
       showSuccess("Siparişiniz başarıyla oluşturuldu!");
       clearCart();
       setConfirmDialogOpen(false);
+
+      // Talep sayfasına yönlendir
+      router.push("/customer/request");
     } catch (error) {
       showError("Sipariş oluşturulurken hata oluştu!");
       console.error("Order creation error:", error);
@@ -118,10 +133,7 @@ export default function CustomerOrdersPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header
-          title="Siparişlerim"
-          subtitle={`Hoş geldin ${user?.username || ""}`}
-        />
+        <Header title="Siparişlerim" />
 
         {/* Main Content */}
         <Box
@@ -155,21 +167,38 @@ export default function CustomerOrdersPage() {
                   </Box>
                 </Box>
                 {items.length > 0 ? (
-                  <Button
-                    variant="contained"
-                    startIcon={<CheckCircle />}
-                    onClick={handleCompleteOrder}
-                    sx={{
-                      background:
-                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                      "&:hover": {
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Clear />}
+                      onClick={handleClearCart}
+                      sx={{
+                        borderColor: "#f44336",
+                        color: "#f44336",
+                        "&:hover": {
+                          borderColor: "#d32f2f",
+                          backgroundColor: "rgba(244, 67, 54, 0.04)",
+                        },
+                      }}
+                    >
+                      Sepeti Temizle
+                    </Button>
+                    <Button
+                      variant="contained"
+                      startIcon={<CheckCircle />}
+                      onClick={handleCompleteOrder}
+                      sx={{
                         background:
-                          "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
-                      },
-                    }}
-                  >
-                    Siparişi Tamamla
-                  </Button>
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        "&:hover": {
+                          background:
+                            "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                        },
+                      }}
+                    >
+                      Siparişi Tamamla
+                    </Button>
+                  </Box>
                 ) : (
                   <Button
                     variant="outlined"
@@ -356,7 +385,7 @@ export default function CustomerOrdersPage() {
             fullWidth
           >
             <DialogTitle>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} component="div">
                 Siparişi Onayla
               </Typography>
             </DialogTitle>

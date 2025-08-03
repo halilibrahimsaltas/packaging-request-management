@@ -53,7 +53,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login({ email: form.email, password: form.password });
+      await login(form.email, form.password);
 
       // Redirect based on user role
       const userRole = localStorage.getItem("user")
@@ -89,7 +89,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      await login({ email, password });
+      await login(email, password);
 
       switch (role) {
         case UserRole.ADMIN:
@@ -458,7 +458,11 @@ export default function LoginPage() {
                   variant="outlined"
                   fullWidth
                   onClick={() =>
-                    quickLogin(UserRole.ADMIN, "admin@example.com", "admin123")
+                    quickLogin(
+                      UserRole.ADMIN,
+                      "joe.doe3@example.com",
+                      "password123"
+                    )
                   }
                   disabled={isLoading}
                   startIcon={<Business />}
@@ -483,8 +487,8 @@ export default function LoginPage() {
                   onClick={() =>
                     quickLogin(
                       UserRole.CUSTOMER,
-                      "customer@example.com",
-                      "customer123"
+                      "joe.doe2@example.com",
+                      "password123"
                     )
                   }
                   disabled={isLoading}
@@ -510,8 +514,8 @@ export default function LoginPage() {
                   onClick={() =>
                     quickLogin(
                       UserRole.SUPPLIER,
-                      "supplier@example.com",
-                      "supplier123"
+                      "joe.doe4@example.com",
+                      "password123"
                     )
                   }
                   disabled={isLoading}

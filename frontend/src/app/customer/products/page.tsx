@@ -43,13 +43,8 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-
-interface Product {
-  id: number;
-  name: string;
-  type: string;
-  isActive: boolean;
-}
+import { Product } from "@/types/order.types";
+import { productsApi } from "@/lib";
 
 export default function CustomerProductsPage() {
   const { user } = useAuth();
@@ -65,80 +60,76 @@ export default function CustomerProductsPage() {
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
 
-  // Mock data
+  // Load products from backend
   useEffect(() => {
-    const mockProducts: Product[] = [
-      {
-        id: 1,
-        name: "Karton Kutu - Küçük Boy",
-        type: "Karton Kutu",
-        isActive: true,
-      },
-      {
-        id: 2,
-        name: "Karton Kutu - Orta Boy",
-        type: "Karton Kutu",
-        isActive: true,
-      },
-      {
-        id: 3,
-        name: "Karton Kutu - Büyük Boy",
-        type: "Karton Kutu",
-        isActive: true,
-      },
-      {
-        id: 4,
-        name: "Plastik Poşet - Şeffaf",
-        type: "Plastik Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 5,
-        name: "Plastik Poşet - Renkli",
-        type: "Plastik Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 6,
-        name: "Cam Şişe - 500ml",
-        type: "Cam Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 7,
-        name: "Cam Şişe - 1L",
-        type: "Cam Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 8,
-        name: "Metal Kutu - Konserve",
-        type: "Metal Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 9,
-        name: "Kağıt Torba - Kraft",
-        type: "Kağıt Ambalaj",
-        isActive: true,
-      },
-      {
-        id: 10,
-        name: "Kağıt Torba - Beyaz",
-        type: "Kağıt Ambalaj",
-        isActive: true,
-      },
-    ];
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        console.log("Loading products from backend..."); // Debug
 
-    setProducts(mockProducts);
-    setFilteredProducts(mockProducts);
+        // Get active products
+        console.log("Calling getActiveProducts..."); // Debug
+        const activeProducts = await productsApi.getActiveProducts();
+        console.log("Active products received:", activeProducts); // Debug
+        setProducts(activeProducts);
+        setFilteredProducts(activeProducts);
 
-    // unique product types
-    const types = [...new Set(mockProducts.map((p) => p.type))];
-    setAvailableTypes(types);
+        // Get available product types
+        console.log("Calling getActiveProductTypes..."); // Debug
+        const types = await productsApi.getActiveProductTypes();
+        console.log("Product types received:", types); // Debug
+        setAvailableTypes(types);
 
-    setLoading(false);
-  }, []);
+        // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
+      } catch (error) {
+        console.error("Error loading products:", error);
+        showError(
+          "Ürünler yüklenirken hata oluştu. Demo veriler kullanılıyor."
+        );
+
+        // Fallback to mock data if API fails
+        const mockProducts: Product[] = [
+          {
+            id: 1,
+            name: "Karton Kutu - Küçük Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 2,
+            name: "Karton Kutu - Orta Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 3,
+            name: "Karton Kutu - Büyük Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 4,
+            name: "Plastik Poşet - Şeffaf",
+            type: "Plastik Ambalaj",
+            isActive: true,
+          },
+          {
+            id: 5,
+            name: "Plastik Poşet - Renkli",
+            type: "Plastik Ambalaj",
+            isActive: true,
+          },
+        ];
+        setProducts(mockProducts);
+        setFilteredProducts(mockProducts);
+        setAvailableTypes([...new Set(mockProducts.map((p) => p.type))]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [showSuccess, showError]);
 
   // filter
   useEffect(() => {
@@ -162,9 +153,12 @@ export default function CustomerProductsPage() {
 
     setFilteredProducts(filtered);
 
-    // Show filter results
-    if (searchTerm || selectedTypes.length > 0) {
-      showInfo(`${filtered.length} ürün bulundu`);
+    // Show filter results - sadece bir kez göster
+    if (
+      (searchTerm || selectedTypes.length > 0) &&
+      filtered.length !== products.length
+    ) {
+      // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
     }
   }, [products, searchTerm, selectedTypes, showInfo]);
 
@@ -176,11 +170,9 @@ export default function CustomerProductsPage() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedTypes([]);
-    showInfo("Filtreler temizlendi");
   };
 
   const handleViewProduct = (product: Product) => {
-    showInfo(`${product.name} detayları görüntüleniyor...`);
     console.log("View product:", product);
   };
 
@@ -228,10 +220,7 @@ export default function CustomerProductsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header
-          title="Ürün Kataloğu"
-          subtitle={`Hoş geldin ${user?.username || ""}`}
-        />
+        <Header title="Ürün Kataloğu" />
 
         {/* Main Content */}
         <Box

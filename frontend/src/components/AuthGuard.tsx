@@ -11,11 +11,11 @@ export const AuthGuard = ({
   requiredRole,
   redirectTo = "/auth/login",
 }: AuthGuardProps) => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!loading) {
       if (!isAuthenticated) {
         router.push(redirectTo);
         return;
@@ -39,9 +39,9 @@ export const AuthGuard = ({
         return;
       }
     }
-  }, [isAuthenticated, isLoading, user, requiredRole, router, redirectTo]);
+  }, [isAuthenticated, loading, user, requiredRole, router, redirectTo]);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div
         style={{

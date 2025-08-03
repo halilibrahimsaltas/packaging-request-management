@@ -33,6 +33,7 @@ import {
   Inventory,
   CheckCircle,
   Cancel,
+  Delete,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -41,130 +42,156 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/Toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-
-interface OrderItem {
-  id: number;
-  productId: number;
-  productName: string;
-  productType: string;
-  quantity: number;
-}
-
-interface SupplierInterest {
-  id: number;
-  supplierId: number;
-  supplierName: string;
-  isInterested: boolean;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Order {
-  id: number;
-  customerId: number;
-  customerName: string;
-  createdAt: string;
-  items: OrderItem[];
-  supplierInterests: SupplierInterest[];
-  interestedSuppliersCount: number;
-  totalSuppliersCount: number;
-}
+import { Order, OrderItem, SupplierInterest } from "@/types/order.types";
+import { ordersApi } from "@/lib";
 
 export default function CustomerRequestPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { showSuccess, showError, showInfo, showWarning } = useToast();
+  const { showSuccess, showError } = useToast();
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
-  // Mock data
+  // Load orders from backend
   useEffect(() => {
-    const mockOrders: Order[] = [
-      {
-        id: 1,
-        customerId: 3,
-        customerName: "johndoe",
-        createdAt: "2025-08-02T07:55:28.451Z",
-        items: [
-          {
-            id: 2,
-            productId: 2,
-            productName: "Custom Packaging Box",
-            productType: "PACKAGING",
-            quantity: 50,
-          },
-          {
-            id: 1,
-            productId: 3,
-            productName: "Updated Product Name 1",
-            productType: "LABELS",
-            quantity: 100,
-          },
-        ],
-        supplierInterests: [
-          {
-            id: 1,
-            supplierId: 4,
-            supplierName: "j*****e",
-            isInterested: true,
-            notes:
-              "I'm interested in this order and can provide competitive pricing",
-            createdAt: "2025-08-02T09:03:29.701Z",
-            updatedAt: "2025-08-02T12:49:58.219Z",
-          },
-          {
-            id: 6,
-            supplierId: 5,
-            supplierName: "j*****e",
-            isInterested: true,
-            notes:
-              "I'm interested in this order and can provide competitive pricing",
-            createdAt: "2025-08-02T13:27:44.397Z",
-            updatedAt: "2025-08-02T13:27:44.397Z",
-          },
-        ],
-        interestedSuppliersCount: 2,
-        totalSuppliersCount: 2,
-      },
-      {
-        id: 2,
-        customerId: 3,
-        customerName: "johndoe",
-        createdAt: "2025-08-01T10:30:15.123Z",
-        items: [
-          {
-            id: 3,
-            productId: 1,
-            productName: "Plastic Container",
-            productType: "CONTAINERS",
-            quantity: 25,
-          },
-        ],
-        supplierInterests: [
-          {
-            id: 2,
-            supplierId: 6,
-            supplierName: "s*****r",
-            isInterested: false,
-            createdAt: "2025-08-01T11:15:22.456Z",
-            updatedAt: "2025-08-01T11:15:22.456Z",
-          },
-        ],
-        interestedSuppliersCount: 0,
-        totalSuppliersCount: 1,
-      },
-    ];
+    const loadOrders = async () => {
+      try {
+        setLoading(true);
 
-    setOrders(mockOrders);
-    setLoading(false);
+        // Get customer's orders
+        const customerOrders = await ordersApi.getMyOrders();
+        setOrders(customerOrders);
+      } catch (error) {
+        console.error("Error loading orders:", error);
+
+        // Fallback to mock data if API fails
+        const mockOrders: Order[] = [
+          {
+            id: 1,
+            customerId: 3,
+            customerName: "johndoe",
+            createdAt: "2025-08-02T07:55:28.451Z",
+            items: [
+              {
+                id: 2,
+                productId: 2,
+                productName: "Custom Packaging Box",
+                productType: "PACKAGING",
+                quantity: 50,
+              },
+              {
+                id: 1,
+                productId: 3,
+                productName: "Updated Product Name 1",
+                productType: "LABELS",
+                quantity: 100,
+              },
+            ],
+            supplierInterests: [
+              {
+                id: 1,
+                supplierId: 4,
+                supplierName: "j*****e",
+                isInterested: true,
+                notes:
+                  "I'm interested in this order and can provide competitive pricing",
+                createdAt: "2025-08-02T09:03:29.701Z",
+                updatedAt: "2025-08-02T12:49:58.219Z",
+              },
+              {
+                id: 6,
+                supplierId: 5,
+                supplierName: "j*****e",
+                isInterested: true,
+                notes:
+                  "I'm interested in this order and can provide competitive pricing",
+                createdAt: "2025-08-02T13:27:44.397Z",
+                updatedAt: "2025-08-02T13:27:44.397Z",
+              },
+            ],
+            interestedSuppliersCount: 2,
+            totalSuppliersCount: 2,
+          },
+          {
+            id: 2,
+            customerId: 3,
+            customerName: "johndoe",
+            createdAt: "2025-08-01T10:30:15.123Z",
+            items: [
+              {
+                id: 3,
+                productId: 1,
+                productName: "Plastic Container",
+                productType: "CONTAINERS",
+                quantity: 25,
+              },
+            ],
+            supplierInterests: [
+              {
+                id: 2,
+                supplierId: 6,
+                supplierName: "s*****r",
+                isInterested: false,
+                createdAt: "2025-08-01T11:15:22.456Z",
+                updatedAt: "2025-08-01T11:15:22.456Z",
+              },
+            ],
+            interestedSuppliersCount: 0,
+            totalSuppliersCount: 1,
+          },
+        ];
+
+        setOrders(mockOrders);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrders();
   }, []);
 
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setDetailDialogOpen(true);
+  const handleViewDetails = async (order: Order) => {
+    try {
+      // Get order with supplier interests from backend
+      const orderWithSuppliers = await ordersApi.getMyOrderWithSuppliers(
+        order.id
+      );
+      setSelectedOrder(orderWithSuppliers);
+      setDetailDialogOpen(true);
+    } catch (error) {
+      console.error("Error loading order details:", error);
+
+      // Fallback to basic order data
+      setSelectedOrder(order);
+      setDetailDialogOpen(true);
+    }
+  };
+
+  const handleDeleteOrder = (order: Order) => {
+    setOrderToDelete(order);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+
+    try {
+      await ordersApi.deleteMyOrder(orderToDelete.id);
+      showSuccess("Talep başarıyla silindi");
+
+      // Remove from local state
+      setOrders(orders.filter((order) => order.id !== orderToDelete.id));
+      setDeleteDialogOpen(false);
+      setOrderToDelete(null);
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      showError("Talep silinirken hata oluştu");
+    }
   };
 
   const getStatusColor = (interestedCount: number, totalCount: number) => {
@@ -174,8 +201,8 @@ export default function CustomerRequestPage() {
   };
 
   const getStatusText = (interestedCount: number, totalCount: number) => {
-    if (interestedCount === 0) return "0";
-    if (interestedCount === totalCount) return "2";
+    if (interestedCount === 0) return "İlgi Yok";
+    if (interestedCount === totalCount) return "Tam İlgi";
     return "Kısmi İlgi";
   };
 
@@ -207,10 +234,7 @@ export default function CustomerRequestPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header
-          title="Taleplerim"
-          subtitle={`Hoş geldin ${user?.username || ""}`}
-        />
+        <Header title="Taleplerim" />
 
         {/* Main Content */}
         <Box
@@ -278,7 +302,6 @@ export default function CustomerRequestPage() {
                         <TableCell sx={{ fontWeight: 600 }}>
                           Toplam Adet
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Durum</TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
@@ -324,44 +347,49 @@ export default function CustomerRequestPage() {
                                 {totalQuantity} adet
                               </Typography>
                             </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={getStatusText(
-                                  order.interestedSuppliersCount,
-                                  order.totalSuppliersCount
-                                )}
-                                color={getStatusColor(
-                                  order.interestedSuppliersCount,
-                                  order.totalSuppliersCount
-                                )}
-                                size="small"
-                                icon={
-                                  order.interestedSuppliersCount > 0 ? (
-                                    <CheckCircle />
-                                  ) : (
-                                    <Cancel />
-                                  )
-                                }
-                              />
-                            </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                startIcon={<Visibility />}
-                                onClick={() => handleViewDetails(order)}
+                              <Box
                                 sx={{
-                                  borderColor: "#667eea",
-                                  color: "#667eea",
-                                  "&:hover": {
-                                    borderColor: "#5a6fd8",
-                                    backgroundColor:
-                                      "rgba(102, 126, 234, 0.04)",
-                                  },
+                                  display: "flex",
+                                  gap: 1,
+                                  justifyContent: "center",
                                 }}
                               >
-                                Detaylar
-                              </Button>
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  startIcon={<Visibility />}
+                                  onClick={() => handleViewDetails(order)}
+                                  sx={{
+                                    borderColor: "#667eea",
+                                    color: "#667eea",
+                                    "&:hover": {
+                                      borderColor: "#5a6fd8",
+                                      backgroundColor:
+                                        "rgba(102, 126, 234, 0.04)",
+                                    },
+                                  }}
+                                >
+                                  Detaylar
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  startIcon={<Delete />}
+                                  onClick={() => handleDeleteOrder(order)}
+                                  sx={{
+                                    borderColor: "#f44336",
+                                    color: "#f44336",
+                                    "&:hover": {
+                                      borderColor: "#d32f2f",
+                                      backgroundColor:
+                                        "rgba(244, 67, 54, 0.04)",
+                                    },
+                                  }}
+                                >
+                                  Sil
+                                </Button>
+                              </Box>
                             </TableCell>
                           </TableRow>
                         );
@@ -381,7 +409,7 @@ export default function CustomerRequestPage() {
             fullWidth
           >
             <DialogTitle>
-              <Typography variant="h6" fontWeight={600}>
+              <Typography variant="h6" fontWeight={600} component="div">
                 Talep Detayları - #{selectedOrder?.id}
               </Typography>
             </DialogTitle>
@@ -543,6 +571,65 @@ export default function CustomerRequestPage() {
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
               <Button onClick={() => setDetailDialogOpen(false)}>Kapat</Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog
+            open={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            maxWidth="sm"
+            fullWidth
+          >
+            <DialogTitle>
+              <Typography variant="h6" fontWeight={600} component="div">
+                Talep Silme Onayı
+              </Typography>
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body1" gutterBottom>
+                  Bu talebi silmek istediğinizden emin misiniz?
+                </Typography>
+                {orderToDelete && (
+                  <Box
+                    sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}
+                  >
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      Talep #{orderToDelete.id}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {orderToDelete.items.length} çeşit ürün, toplam{" "}
+                      {orderToDelete.items.reduce(
+                        (sum, item) => sum + item.quantity,
+                        0
+                      )}{" "}
+                      adet
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Tarih: {formatDate(orderToDelete.createdAt)}
+                    </Typography>
+                  </Box>
+                )}
+                <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+                  Bu işlem geri alınamaz!
+                </Typography>
+              </Box>
+            </DialogContent>
+            <DialogActions sx={{ p: 3 }}>
+              <Button onClick={() => setDeleteDialogOpen(false)}>İptal</Button>
+              <Button
+                onClick={confirmDeleteOrder}
+                variant="contained"
+                color="error"
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#d32f2f",
+                  },
+                }}
+              >
+                Sil
+              </Button>
             </DialogActions>
           </Dialog>
         </Box>
