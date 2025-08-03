@@ -1,53 +1,172 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
   Typography,
   Card,
   CardContent,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
   Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  IconButton,
 } from "@mui/material";
 import {
-  Assignment,
+  Search,
+  Inventory,
   FilterList,
-  CheckCircle,
-  Cancel,
+  Clear,
+  Visibility,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import { UserRole } from "@/types/role.type";
 import { useLanguage } from "@/context/LanguageContext";
+import { useToast } from "@/components/Toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
+import { Product } from "@/types/order.types";
+import { productsApi } from "@/lib";
 
 export default function SupplierDashboard() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { showSuccess, showError, showInfo } = useToast();
 
-  const supplierActions = [
-    {
-      title: t("dashboard.supplier.viewRequests"),
-      description: t("dashboard.supplier.viewRequestsDesc"),
-      icon: <Assignment />,
-      color: "#667eea",
-      action: () => console.log("Talepleri görüntüle"),
-    },
-    {
-      title: t("dashboard.supplier.filter"),
-      description: t("dashboard.supplier.filterDesc"),
-      icon: <FilterList />,
-      color: "#f093fb",
-      action: () => console.log("Filtrele"),
-    },
-    {
-      title: t("dashboard.supplier.interested"),
-      description: t("dashboard.supplier.interestedDesc"),
-      icon: <CheckCircle />,
-      color: "#4facfe",
-      action: () => console.log("İlgilendiğim"),
-    },
-  ];
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
+
+  // Load products from backend
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        console.log("Loading products from backend...");
+
+        // Get active products
+        const activeProducts = await productsApi.getActiveProducts();
+        console.log("Active products received:", activeProducts);
+        setProducts(activeProducts);
+        setFilteredProducts(activeProducts);
+
+        // Get available product types
+        const types = await productsApi.getActiveProductTypes();
+        console.log("Product types received:", types);
+        setAvailableTypes(types);
+      } catch (error) {
+        console.error("Error loading products:", error);
+        showError("Ürünler yüklenirken hata oluştu");
+
+        // Fallback to mock data if API fails
+        const mockProducts: Product[] = [
+          {
+            id: 1,
+            name: "Karton Kutu - Küçük Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 2,
+            name: "Karton Kutu - Orta Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 3,
+            name: "Karton Kutu - Büyük Boy",
+            type: "Karton Kutu",
+            isActive: true,
+          },
+          {
+            id: 4,
+            name: "Plastik Poşet - Şeffaf",
+            type: "Plastik Ambalaj",
+            isActive: true,
+          },
+          {
+            id: 5,
+            name: "Plastik Poşet - Renkli",
+            type: "Plastik Ambalaj",
+            isActive: true,
+          },
+        ];
+        setProducts(mockProducts);
+        setFilteredProducts(mockProducts);
+        setAvailableTypes([...new Set(mockProducts.map((p) => p.type))]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, [showError]);
+
+  // Filter products
+  useEffect(() => {
+    let filtered = products.filter((product) => product.isActive);
+
+    // search filter
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.type.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // type filter
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter((product) =>
+        selectedTypes.includes(product.type)
+      );
+    }
+
+    setFilteredProducts(filtered);
+  }, [products, searchTerm, selectedTypes]);
+
+  const handleTypeChange = (event: any) => {
+    const value = event.target.value;
+    setSelectedTypes(typeof value === "string" ? value.split(",") : value);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedTypes([]);
+  };
+
+  const handleViewProduct = (product: Product) => {
+    console.log("View product:", product);
+    showInfo(`${product.name} ürünü görüntüleniyor`);
+  };
+
+  const getTypeColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      "Karton Kutu": "#4caf50",
+      "Plastik Ambalaj": "#2196f3",
+      "Cam Ambalaj": "#ff9800",
+      "Metal Ambalaj": "#9c27b0",
+      "Kağıt Ambalaj": "#795548",
+    };
+    return colors[type] || "#757575";
+  };
 
   return (
     <AuthGuard requiredRole={UserRole.SUPPLIER}>
@@ -56,160 +175,198 @@ export default function SupplierDashboard() {
         <Sidebar />
 
         {/* Header */}
-        <Header
-          title={t("dashboard.supplier.title")}
-          subtitle={t("dashboard.supplier.subtitle").replace(
-            "{username}",
-            user?.username || ""
-          )}
-        />
+        <Header title="Ürün Kataloğu" />
 
         {/* Main Content */}
-        <Container
-          maxWidth="lg"
+        <Box
           sx={{
-            py: 4,
-            pl: { xs: 0, sm: 0 },
+            py: 2,
+            px: 3,
             marginLeft: "280px",
             width: "calc(100% - 280px)",
+            minHeight: "100vh",
           }}
         >
-          <Typography
-            variant="h4"
-            component="h1"
-            sx={{ mb: 4, fontWeight: 600, color: "#2c3e50" }}
-          >
-            {t("dashboard.supplier.supplierOperations")}
-          </Typography>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 3,
-              justifyContent: "center",
-            }}
-          >
-            {supplierActions.map((action, index) => (
-              <Box
-                key={index}
-                sx={{
-                  flex: "1 1 300px",
-                  maxWidth: "400px",
-                  minWidth: "280px",
-                }}
-              >
-                <Card
-                  elevation={2}
+          {/* Search and Filter Section */}
+          <Card elevation={2} sx={{ mb: 3, borderRadius: 3 }}>
+            <CardContent sx={{ p: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {/* Search Bar */}
+                <TextField
+                  fullWidth
+                  placeholder="Ürün adı veya tipi ile arayın..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search />
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{
-                    height: "100%",
-                    borderRadius: 3,
-                    background:
-                      "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                    transition: "all 0.3s ease",
-                    cursor: "pointer",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
                     },
                   }}
-                  onClick={action.action}
+                />
+
+                {/* Filter Section */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
                 >
-                  <CardContent sx={{ p: 3, textAlign: "center" }}>
-                    <Box
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 60,
-                        height: 60,
-                        borderRadius: "50%",
-                        backgroundColor: `${action.color}15`,
-                        mb: 2,
-                        transition: "all 0.3s ease",
-                      }}
+                  <FilterList sx={{ color: "text.secondary" }} />
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Filtrele:
+                  </Typography>
+
+                  <FormControl sx={{ minWidth: 200 }}>
+                    <InputLabel>Ürün Tipi</InputLabel>
+                    <Select
+                      multiple
+                      value={selectedTypes}
+                      onChange={handleTypeChange}
+                      label="Ürün Tipi"
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                        >
+                          {selected.map((value) => (
+                            <Chip
+                              key={value}
+                              label={value}
+                              size="small"
+                              sx={{
+                                backgroundColor: getTypeColor(value),
+                                color: "white",
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      )}
                     >
-                      <Box sx={{ color: action.color }}>{action.icon}</Box>
-                    </Box>
-                    <Typography
-                      variant="h6"
-                      component="div"
-                      sx={{ fontWeight: 600, mb: 1 }}
-                    >
-                      {action.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 2 }}
-                    >
-                      {action.description}
-                    </Typography>
+                      {availableTypes.map((type) => (
+                        <MenuItem key={type} value={type}>
+                          <Chip
+                            label={type}
+                            size="small"
+                            sx={{
+                              backgroundColor: getTypeColor(type),
+                              color: "white",
+                            }}
+                          />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {(searchTerm || selectedTypes.length > 0) && (
                     <Button
+                      startIcon={<Clear />}
+                      onClick={clearFilters}
                       variant="outlined"
                       size="small"
-                      sx={{
-                        borderColor: action.color,
-                        color: action.color,
-                        "&:hover": {
-                          backgroundColor: `${action.color}15`,
-                          borderColor: action.color,
-                        },
-                      }}
                     >
-                      {t("dashboard.supplier.start")}
+                      Filtreleri Temizle
                     </Button>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
-          </Box>
+                  )}
+                </Box>
 
-          {/* interest example */}
-          <Box
-            sx={{
-              mt: 6,
-              p: 3,
-              bgcolor: "white",
-              borderRadius: 3,
-              boxShadow: 2,
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-              {t("dashboard.supplier.interestExample")}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {t("dashboard.supplier.interestExampleDesc")}
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2 }}>
-              <Button
-                variant="contained"
-                startIcon={<CheckCircle />}
-                sx={{
-                  bgcolor: "#4caf50",
-                  "&:hover": { bgcolor: "#45a049" },
-                }}
-              >
-                {t("dashboard.supplier.interested")}
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<Cancel />}
-                sx={{
-                  borderColor: "#f44336",
-                  color: "#f44336",
-                  "&:hover": {
-                    borderColor: "#d32f2f",
-                    bgcolor: "rgba(244, 67, 54, 0.1)",
-                  },
-                }}
-              >
-                {t("dashboard.supplier.notInterested")}
-              </Button>
-            </Box>
-          </Box>
-        </Container>
+                {/* Results Count */}
+                <Typography variant="body2" color="text.secondary">
+                  {filteredProducts.length} ürün bulundu
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Products Table */}
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
+            <CardContent sx={{ p: 0 }}>
+              {loading ? (
+                <Box sx={{ p: 3 }}>
+                  {[...Array(5)].map((_, index) => (
+                    <Box key={index} sx={{ display: "flex", gap: 2, mb: 2 }}>
+                      <Skeleton variant="text" width="40%" height={40} />
+                      <Skeleton variant="text" width="20%" height={40} />
+                      <Skeleton variant="text" width="20%" height={40} />
+                      <Skeleton variant="text" width="20%" height={40} />
+                    </Box>
+                  ))}
+                </Box>
+              ) : filteredProducts.length === 0 ? (
+                <Box sx={{ p: 4, textAlign: "center" }}>
+                  <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
+                  <Typography variant="h6" color="text.secondary" gutterBottom>
+                    Ürün bulunamadı
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Arama kriterlerinizi değiştirmeyi deneyin
+                  </Typography>
+                </Box>
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
+                        <TableCell sx={{ fontWeight: 600 }}>Ürün Adı</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          Ürün Tipi
+                        </TableCell>
+                        <TableCell
+                          sx={{ fontWeight: 600, textAlign: "center" }}
+                        >
+                          Durum
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredProducts.map((product) => (
+                        <TableRow
+                          key={product.id}
+                          sx={{
+                            "&:hover": {
+                              backgroundColor: "rgba(0,0,0,0.02)",
+                            },
+                          }}
+                        >
+                          <TableCell>
+                            <Typography variant="body1" fontWeight={500}>
+                              {product.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={product.type}
+                              size="small"
+                              sx={{
+                                backgroundColor: getTypeColor(product.type),
+                                color: "white",
+                                fontWeight: 600,
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ textAlign: "center" }}>
+                            <Chip
+                              label={product.isActive ? "Aktif" : "Pasif"}
+                              color={product.isActive ? "success" : "default"}
+                              size="small"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </CardContent>
+          </Card>
+        </Box>
       </Box>
     </AuthGuard>
   );

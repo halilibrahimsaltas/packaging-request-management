@@ -9,10 +9,8 @@ import {
 } from "@mui/material";
 import { Language } from "@mui/icons-material";
 import { useState } from "react";
-import {
-  useLanguage,
-  Language as LanguageType,
-} from "@/context/LanguageContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { Language as LanguageType } from "@/types";
 
 export const LanguageSwitcher = () => {
   const { language, setLanguage, t } = useLanguage();

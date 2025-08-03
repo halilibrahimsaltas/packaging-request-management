@@ -33,14 +33,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const existingItem = prev.find((item) => item.productId === productId);
 
       if (existingItem) {
-        // Eğer ürün zaten sepette varsa, miktarını güncelle
+        // if already in cart, update quantity
         return prev.map((item) =>
           item.productId === productId
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        // Yeni ürün ekle
+        // if not in cart, add to cart
         return [...prev, { productId, name, type, quantity }];
       }
     });

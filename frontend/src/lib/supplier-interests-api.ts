@@ -61,6 +61,19 @@ export const supplierInterestsApi = {
     }
   },
 
+  // Get supplier interests for specific supplier
+  getSupplierInterests: async (supplierId: number): Promise<any[]> => {
+    try {
+      const response = await apiRequest<ApiResponse<any[]>>(
+        `/supplier-interests/supplier/${supplierId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("getSupplierInterests error:", error);
+      throw error;
+    }
+  },
+
   // Supplier: Get orders by product types
   getOrdersByProductTypes: async (
     productTypes: string[],

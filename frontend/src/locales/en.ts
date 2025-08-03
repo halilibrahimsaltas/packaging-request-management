@@ -114,8 +114,6 @@ export const en = {
   "dashboard.supplier.viewRequests": "View Requests",
   "dashboard.supplier.viewRequestsDesc":
     "Filter and examine all requests by product type",
-  "dashboard.supplier.filter": "Filter",
-  "dashboard.supplier.filterDesc": "Filter requests by at least 1 product type",
   "dashboard.supplier.interested": "Interested",
   "dashboard.supplier.interestedDesc":
     "View and manage requests you're interested in",

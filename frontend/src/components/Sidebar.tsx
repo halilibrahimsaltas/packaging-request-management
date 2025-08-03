@@ -131,14 +131,9 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
         href: "/supplier/requests",
       },
       {
-        text: t("dashboard.supplier.filter"),
-        icon: <FilterList />,
-        href: "/supplier/filter",
-      },
-      {
         text: t("dashboard.supplier.interested"),
         icon: <CheckCircle />,
-        href: "/supplier/interested",
+        href: "/supplier/supplier-interests",
       },
     ],
   };

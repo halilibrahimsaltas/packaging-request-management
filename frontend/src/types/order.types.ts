@@ -8,12 +8,69 @@ export interface OrderItem {
 
 export interface SupplierInterest {
   id: number;
+  orderId: number;
   supplierId: number;
   supplierName: string;
   isInterested: boolean;
   notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// Backend response interfaces
+export interface BackendSupplierInterestResponse {
+  id: number;
+  supplier: {
+    id: number;
+    username: string;
+    maskedName: string;
+  };
+  order: {
+    id: number;
+    customer: {
+      id: number;
+      username: string;
+    };
+    items: Array<{
+      id: number;
+      product: {
+        id: number;
+        name: string;
+        type: string;
+      };
+      quantity: number;
+    }>;
+    createdAt: string;
+  };
+  isInterested: boolean;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BackendOrderDetailResponse {
+  id: number;
+  customer: {
+    id: number;
+    username: string;
+  };
+  items: Array<{
+    id: number;
+    product: {
+      id: number;
+      name: string;
+      type: string;
+    };
+    quantity: number;
+  }>;
+  createdAt: string;
+  supplierInterest: {
+    id: number;
+    isInterested: boolean;
+    notes?: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
 }
 
 export interface Order {
@@ -127,6 +184,7 @@ export interface UpdateUserDto {
 
 export interface CreateSupplierInterestDto {
   orderId: number;
+  supplierId: number;
   isInterested: boolean;
   notes?: string;
 }

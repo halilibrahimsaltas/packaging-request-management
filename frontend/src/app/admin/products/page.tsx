@@ -42,7 +42,6 @@ import {
   Delete,
   Visibility,
   VisibilityOff,
-  Category,
 } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -69,7 +68,6 @@ export default function AdminProductsPage() {
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [typeDialogOpen, setTypeDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Form states
@@ -239,32 +237,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleAddType = async () => {
-    if (!newProduct.type.trim()) {
-      showError("Ürün türü boş olamaz");
-      return;
-    }
-
-    try {
-      // Yeni ürün türü eklemek için yeni bir ürün oluşturuyoruz
-      const createdProduct = await productsApi.createProduct({
-        name: newProduct.type, // Tür adını ürün adı olarak kullanıyoruz
-        type: newProduct.type,
-        isActive: true,
-      });
-
-      // Mevcut ürünler listesine ekliyoruz
-      setProducts([...products, createdProduct]);
-      setAvailableTypes([...availableTypes, newProduct.type.trim()]);
-      setTypeDialogOpen(false);
-      setNewProduct({ name: "", type: "", isActive: true });
-      showSuccess("Ürün türü başarıyla eklendi");
-    } catch (error) {
-      console.error("Error adding product type:", error);
-      showError("Ürün türü eklenirken hata oluştu");
-    }
-  };
-
   const handleEditProduct = (product: Product) => {
     setSelectedProduct(product);
     setNewProduct({
@@ -396,24 +368,6 @@ export default function AdminProductsPage() {
 
                   {/* Action Buttons */}
                   <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Category />}
-                      onClick={() => {
-                        setNewProduct({ name: "", type: "", isActive: true });
-                        setTypeDialogOpen(true);
-                      }}
-                      sx={{
-                        borderColor: "#ff9800",
-                        color: "#ff9800",
-                        "&:hover": {
-                          borderColor: "#f57c00",
-                          backgroundColor: "rgba(255, 152, 0, 0.04)",
-                        },
-                      }}
-                    >
-                      Tür Ekle
-                    </Button>
                     <Button
                       variant="contained"
                       startIcon={<Add />}
@@ -627,22 +581,15 @@ export default function AdminProductsPage() {
                   }
                   placeholder="Örn: Küçük Boy Karton Kutu"
                 />
-                <FormControl fullWidth>
-                  <InputLabel>Ürün Tipi</InputLabel>
-                  <Select
-                    value={newProduct.type}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, type: e.target.value })
-                    }
-                    label="Ürün Tipi"
-                  >
-                    {availableTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Ürün Tipi"
+                  value={newProduct.type}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, type: e.target.value })
+                  }
+                  placeholder="Örn: Karton Kutu, Plastik Ambalaj"
+                />
                 <FormControlLabel
                   control={
                     <Switch
@@ -695,22 +642,15 @@ export default function AdminProductsPage() {
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
                 />
-                <FormControl fullWidth>
-                  <InputLabel>Ürün Tipi</InputLabel>
-                  <Select
-                    value={newProduct.type}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, type: e.target.value })
-                    }
-                    label="Ürün Tipi"
-                  >
-                    {availableTypes.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Ürün Tipi"
+                  value={newProduct.type}
+                  onChange={(e) =>
+                    setNewProduct({ ...newProduct, type: e.target.value })
+                  }
+                  placeholder="Örn: Karton Kutu, Plastik Ambalaj"
+                />
                 <FormControlLabel
                   control={
                     <Switch
@@ -735,43 +675,6 @@ export default function AdminProductsPage() {
                 disabled={!newProduct.name || !newProduct.type}
               >
                 Güncelle
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          {/* Add Type Dialog */}
-          <Dialog
-            open={typeDialogOpen}
-            onClose={() => setTypeDialogOpen(false)}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>
-              <Typography variant="h6" fontWeight={600} component="div">
-                Yeni Ürün Türü Ekle
-              </Typography>
-            </DialogTitle>
-            <DialogContent>
-              <Box sx={{ mt: 1 }}>
-                <TextField
-                  fullWidth
-                  label="Ürün Türü"
-                  value={newProduct.type}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, type: e.target.value })
-                  }
-                  placeholder="Örn: Karton Kutu, Plastik Ambalaj"
-                />
-              </Box>
-            </DialogContent>
-            <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setTypeDialogOpen(false)}>İptal</Button>
-              <Button
-                onClick={handleAddType}
-                variant="contained"
-                disabled={!newProduct.type.trim()}
-              >
-                Ekle
               </Button>
             </DialogActions>
           </Dialog>

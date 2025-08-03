@@ -114,9 +114,6 @@ export const tr = {
   "dashboard.supplier.viewRequests": "Talepleri Görüntüle",
   "dashboard.supplier.viewRequestsDesc":
     "Tüm talepleri ürün tipine göre filtrele ve incele",
-  "dashboard.supplier.filter": "Filtrele",
-  "dashboard.supplier.filterDesc":
-    "En az 1 ürün tipine göre talepleri filtrele",
   "dashboard.supplier.interested": "İlgilendiğim",
   "dashboard.supplier.interestedDesc":
     "İlgilendiğiniz talepleri görüntüle ve yönet",
