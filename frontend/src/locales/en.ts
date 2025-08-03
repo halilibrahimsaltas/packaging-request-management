@@ -1,6 +1,6 @@
 export const en = {
   // Layout
-  "app.title": "Packaging Request and Supplier Notification System",
+  "app.title": "Paketera",
   "app.description":
     "Packaging request and supplier notification management system",
 

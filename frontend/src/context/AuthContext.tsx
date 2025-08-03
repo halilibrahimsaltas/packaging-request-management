@@ -7,7 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { authApi, apiUtils } from "@/lib";
+import { authApi, apiUtils, usersApi } from "@/lib";
 import { User } from "@/types/order.types";
 
 interface AuthContextType {
@@ -80,7 +80,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
 
-      const response = await authApi.register({
+      // Use usersApi.createUser instead of authApi.register
+      const response = await usersApi.createUser({
         username,
         email,
         password,
@@ -88,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       // After successful registration, automatically log in
-      await login(username, password);
+      await login(email, password);
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;

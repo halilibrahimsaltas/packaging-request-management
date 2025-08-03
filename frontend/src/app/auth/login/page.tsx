@@ -74,7 +74,43 @@ export default function LoginPage() {
           router.push("/");
       }
     } catch (error: any) {
-      setError(error.message || t("auth.login.errorMessage"));
+      let errorMessage = "Giriş sırasında bir hata oluştu";
+
+      if (error.message) {
+        // Backend'den gelen JSON hata mesajını parse et
+        if (error.message.includes("HTTP error!")) {
+          try {
+            const errorMatch = error.message.match(/\{.*\}/);
+            if (errorMatch) {
+              const errorData = JSON.parse(errorMatch[0]);
+              errorMessage =
+                errorData.message || "Giriş sırasında bir hata oluştu";
+            }
+          } catch (parseError) {
+            // JSON parse hatası durumunda orijinal mesajı kullan
+            errorMessage = error.message;
+          }
+        } else if (error.message.includes("Invalid credentials")) {
+          errorMessage = "E-posta veya şifre hatalı";
+        } else if (error.message.includes("User not found")) {
+          errorMessage = "Kullanıcı bulunamadı";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Geçersiz e-posta adresi";
+        } else if (error.message.includes("Password is required")) {
+          errorMessage = "Şifre gereklidir";
+        } else if (error.message.includes("Email is required")) {
+          errorMessage = "E-posta adresi gereklidir";
+        } else if (error.message.includes("Network Error")) {
+          errorMessage =
+            "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Bağlantı zaman aşımı. Lütfen tekrar deneyin";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +139,41 @@ export default function LoginPage() {
           break;
       }
     } catch (error: any) {
-      setError(error.message || "Giriş sırasında bir hata oluştu");
+      let errorMessage = "Giriş sırasında bir hata oluştu";
+
+      if (error.message) {
+        if (error.message.includes("HTTP error!")) {
+          try {
+            const errorMatch = error.message.match(/\{.*\}/);
+            if (errorMatch) {
+              const errorData = JSON.parse(errorMatch[0]);
+              errorMessage =
+                errorData.message || "Giriş sırasında bir hata oluştu";
+            }
+          } catch (parseError) {
+            errorMessage = error.message;
+          }
+        } else if (error.message.includes("Invalid credentials")) {
+          errorMessage = "E-posta veya şifre hatalı";
+        } else if (error.message.includes("User not found")) {
+          errorMessage = "Kullanıcı bulunamadı";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Geçersiz e-posta adresi";
+        } else if (error.message.includes("Password is required")) {
+          errorMessage = "Şifre gereklidir";
+        } else if (error.message.includes("Email is required")) {
+          errorMessage = "E-posta adresi gereklidir";
+        } else if (error.message.includes("Network Error")) {
+          errorMessage =
+            "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Bağlantı zaman aşımı. Lütfen tekrar deneyin";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

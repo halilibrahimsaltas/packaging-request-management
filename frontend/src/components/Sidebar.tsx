@@ -143,8 +143,8 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
     ],
   };
 
-  const currentMenuItems = user?.role ? menuItems[user.role] : [];
-  const currentRoleInfo = user?.role ? roleInfo[user.role] : null;
+  const currentMenuItems = user?.role ? menuItems[user.role as UserRole] : [];
+  const currentRoleInfo = user?.role ? roleInfo[user.role as UserRole] : null;
 
   return (
     <Drawer

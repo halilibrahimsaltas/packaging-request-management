@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -21,29 +25,23 @@ export class UsersService {
   }
 
   async getUsers(filter: UserFilterDto): Promise<UserResponseDto[]> {
-    const {
-      page = 1,
-      limit = 10,
-      sort = 'id',
-      order = 'DESC',
-      role,
-    } = filter;
-  
+    const { page = 1, limit = 10, sort = 'id', order = 'DESC', role } = filter;
+
     const offset = (page - 1) * limit;
-  
+
     const queryBuilder = this.userRepository
       .createQueryBuilder('user')
       .orderBy(`user.${sort}`, order)
       .skip(offset)
       .take(limit);
-  
-      // role filter
+
+    // role filter
     if (role && role.length > 0) {
       queryBuilder.andWhere('user.role IN (:...roles)', { roles: role });
     }
-  
+
     const users = await queryBuilder.getMany();
-    return users.map(user => this.mapToUserResponseDto(user));
+    return users.map((user) => this.mapToUserResponseDto(user));
   }
 
   async getUserById(id: number): Promise<UserResponseDto> {
@@ -54,7 +52,10 @@ export class UsersService {
     return this.mapToUserResponseDto(user);
   }
 
-  async updateUser(id: number, updateUserDto: Partial<UpdateUserDto>): Promise<UserResponseDto> {
+  async updateUser(
+    id: number,
+    updateUserDto: Partial<UpdateUserDto>,
+  ): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -69,7 +70,7 @@ export class UsersService {
     return this.mapToUserResponseDto(savedUser);
   }
 
-  async deleteUser(id: number): Promise<{message: string}> {
+  async deleteUser(id: number): Promise<{ message: string }> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -80,7 +81,7 @@ export class UsersService {
 
   async createUser(user: CreateUserDto): Promise<UserResponseDto> {
     const existingUser = await this.userRepository.findOne({
-      where: { email: user.email }
+      where: { email: user.email },
     });
 
     if (existingUser) {
@@ -90,16 +91,21 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(user.password, 10);
     const newUser = this.userRepository.create({
       ...user,
-      password: hashedPassword
+      password: hashedPassword,
+      address: user.address || '',
+      phone: user.phone || '',
     });
 
     const savedUser = await this.userRepository.save(newUser);
     return this.mapToUserResponseDto(savedUser);
   }
 
-  async findByEmail(email: string, includePassword: boolean = false): Promise<UserResponseDto | User> {
+  async findByEmail(
+    email: string,
+    includePassword: boolean = false,
+  ): Promise<UserResponseDto | User> {
     const user = await this.userRepository.findOne({
-      where: { email }
+      where: { email },
     });
 
     if (!user) {
@@ -114,5 +120,4 @@ export class UsersService {
     // Return DTO for normal operations
     return this.mapToUserResponseDto(user);
   }
-
 }

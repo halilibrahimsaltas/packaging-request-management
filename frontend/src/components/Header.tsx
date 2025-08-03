@@ -132,18 +132,6 @@ export default function Header({ title, subtitle }: HeaderProps) {
 
         {/* right side */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* notifications */}
-          <IconButton
-            sx={{
-              color: "white",
-              "&:hover": {
-                backgroundColor: "rgba(255,255,255,0.1)",
-              },
-            }}
-          >
-            <Notifications />
-          </IconButton>
-
           {/* language switcher */}
           <LanguageSwitcher />
 

@@ -78,12 +78,7 @@ export default function RegisterPage() {
     setSuccess("");
 
     try {
-      await register({
-        username: form.name,
-        email: form.email,
-        password: form.password,
-        role: form.role,
-      });
+      await register(form.name, form.email, form.password, form.role);
 
       setSuccess(t("auth.register.successMessage"));
 
@@ -92,7 +87,53 @@ export default function RegisterPage() {
         router.push("/auth/login");
       }, 2000);
     } catch (error: any) {
-      setError(error.message || t("auth.register.errorMessage"));
+      let errorMessage = "Kayıt sırasında bir hata oluştu";
+
+      if (error.message) {
+        if (error.message.includes("HTTP error!")) {
+          try {
+            const errorMatch = error.message.match(/\{.*\}/);
+            if (errorMatch) {
+              const errorData = JSON.parse(errorMatch[0]);
+              errorMessage =
+                errorData.message || "Kayıt sırasında bir hata oluştu";
+            }
+          } catch (parseError) {
+            errorMessage = error.message;
+          }
+        } else if (error.message.includes("User already exists")) {
+          errorMessage = "Bu e-posta adresi zaten kullanılıyor";
+        } else if (error.message.includes("Email already exists")) {
+          errorMessage = "Bu e-posta adresi zaten kayıtlı";
+        } else if (error.message.includes("Username already exists")) {
+          errorMessage = "Bu kullanıcı adı zaten kullanılıyor";
+        } else if (
+          error.message.includes("This email address is already in use")
+        ) {
+          errorMessage = "Bu e-posta adresi zaten kullanılıyor";
+        } else if (error.message.includes("Invalid email")) {
+          errorMessage = "Geçersiz e-posta adresi";
+        } else if (error.message.includes("Email is required")) {
+          errorMessage = "E-posta adresi gereklidir";
+        } else if (error.message.includes("Password is required")) {
+          errorMessage = "Şifre gereklidir";
+        } else if (error.message.includes("Username is required")) {
+          errorMessage = "Kullanıcı adı gereklidir";
+        } else if (error.message.includes("Password too short")) {
+          errorMessage = "Şifre en az 6 karakter olmalıdır";
+        } else if (error.message.includes("Invalid role")) {
+          errorMessage = "Geçersiz kullanıcı rolü";
+        } else if (error.message.includes("Network Error")) {
+          errorMessage =
+            "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin";
+        } else if (error.message.includes("timeout")) {
+          errorMessage = "Bağlantı zaman aşımı. Lütfen tekrar deneyin";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

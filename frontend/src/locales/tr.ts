@@ -1,6 +1,6 @@
 export const tr = {
   // Layout
-  "app.title": "Ambalaj Talep ve Tedarikçi Bildirim Sistemi",
+  "app.title": "Paketera",
   "app.description": "Ambalaj talep ve tedarikçi bildirim yönetim sistemi",
 
   // Home Page
