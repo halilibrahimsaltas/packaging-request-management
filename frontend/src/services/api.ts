@@ -32,7 +32,8 @@ class ApiService {
       throw new Error(error.message || 'Login failed');
     }
 
-    return response.json();
+    const responseData = await response.json();
+    return responseData.data;
   }
 
   async register(userData: RegisterRequest): Promise<RegisterResponse> {
@@ -49,7 +50,8 @@ class ApiService {
       throw new Error(error.message || 'Registration failed');
     }
 
-    return response.json();
+    const responseData = await response.json();
+    return responseData.data;
   }
 
   async getProfile(): Promise<User> {
@@ -61,7 +63,8 @@ class ApiService {
       throw new Error('Failed to get profile');
     }
 
-    return response.json();
+    const responseData = await response.json();
+    return responseData.data;
   }
 
   async refreshToken(): Promise<RefreshTokenResponse> {

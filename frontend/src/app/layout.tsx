@@ -1,76 +1,57 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme } from "@mui/material/styles";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
-import { SnackbarProvider } from "notistack";
-import { CssBaseline, AppBar, Toolbar, Typography } from "@mui/material";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useLanguage } from "@/context/LanguageContext";
-import { usePathname } from "next/navigation";
-import "./globals.css";
+import { CartProvider } from "@/context/CartContext";
+import { ToastProvider } from "@/components/Toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({ subsets: ["latin"] });
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+  },
+  typography: {
+    fontFamily: inter.style.fontFamily,
+  },
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// AppTitle component to use translations
-function AppTitle() {
-  const { t } = useLanguage();
-  return t("app.title");
-}
-
-// Layout component to conditionally show AppBar
-function LayoutContent({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isAuthPage = pathname?.startsWith("/auth");
-
-  return (
-    <>
-      {!isAuthPage && (
-        <AppBar position="static" color="default" elevation={1}>
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              <AppTitle />
-            </Typography>
-            <LanguageSwitcher />
-          </Toolbar>
-        </AppBar>
-      )}
-      {children}
-    </>
-  );
-}
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="tr">
       <head>
         <title>Ambalaj Talep ve Tedarikçi Bildirim Sistemi</title>
         <meta
           name="description"
-          content="Ambalaj talep ve tedarikçi bildirim yönetim sistemi"
+          content="Ambalaj talepleri ve tedarikçi bildirimleri için yönetim sistemi"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <LanguageProvider>
+      <body className={inter.className}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
           <AuthProvider>
-            <SnackbarProvider maxSnack={3}>
-              <CssBaseline />
-              <LayoutContent>{children}</LayoutContent>
-            </SnackbarProvider>
+            <LanguageProvider>
+              <CartProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </CartProvider>
+            </LanguageProvider>
           </AuthProvider>
-        </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

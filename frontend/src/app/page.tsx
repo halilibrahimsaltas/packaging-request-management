@@ -11,5 +11,5 @@ export default function Home() {
     router.push("/auth/login");
   }, [router]);
 
-  return null; // Don't render anything while redirecting
+  return null;
 }

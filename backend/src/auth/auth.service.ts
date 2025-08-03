@@ -17,13 +17,13 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     try {
       // Get raw user entity with password for validation
-      const user = await this.usersService.findByEmail(email, true) as User;
-      
-      if (user && await bcrypt.compare(password, user.password)) {
+      const user = (await this.usersService.findByEmail(email, true)) as User;
+
+      if (user && (await bcrypt.compare(password, user.password))) {
         const { password, ...result } = user;
         return result;
       }
-      
+
       return null;
     } catch (error) {
       return null;
@@ -31,12 +31,12 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload: JwtPayload = { 
-      email: user.email, 
-      sub: user.id, 
-      role: user.role 
+    const payload: JwtPayload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
     };
-    
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -44,7 +44,7 @@ export class AuthService {
         username: user.username,
         email: user.email,
         role: user.role,
-      }
+      },
     };
   }
 
