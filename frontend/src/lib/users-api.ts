@@ -13,7 +13,7 @@ export const usersApi = {
   getAllUsers: async (params?: UserFilterParams): Promise<User[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams ? `/users?${queryParams}` : "/users";
       const response = await apiRequest<ApiResponse<User[]>>(url);

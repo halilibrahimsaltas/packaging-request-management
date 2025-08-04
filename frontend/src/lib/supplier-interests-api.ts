@@ -12,9 +12,9 @@ export const supplierInterestsApi = {
   // Create supplier interest
   createInterest: async (
     interestData: CreateSupplierInterestDto
-  ): Promise<any> => {
+  ): Promise<Record<string, unknown>> => {
     try {
-      const response = await apiRequest<ApiResponse<any>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>>>(
         "/supplier-interests",
         {
           method: "POST",
@@ -32,9 +32,9 @@ export const supplierInterestsApi = {
   updateInterest: async (
     interestId: number,
     updateData: UpdateSupplierInterestDto
-  ): Promise<any> => {
+  ): Promise<Record<string, unknown>> => {
     try {
-      const response = await apiRequest<ApiResponse<any>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>>>(
         `/supplier-interests/${interestId}`,
         {
           method: "PATCH",
@@ -49,9 +49,9 @@ export const supplierInterestsApi = {
   },
 
   // Get supplier's interests
-  getMyInterests: async (): Promise<any[]> => {
+  getMyInterests: async (): Promise<Record<string, unknown>[]> => {
     try {
-      const response = await apiRequest<ApiResponse<any[]>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>[]>>(
         "/supplier-interests/my-interests"
       );
       return response.data;
@@ -62,9 +62,11 @@ export const supplierInterestsApi = {
   },
 
   // Get supplier interests for specific supplier
-  getSupplierInterests: async (supplierId: number): Promise<any[]> => {
+  getSupplierInterests: async (
+    supplierId: number
+  ): Promise<Record<string, unknown>[]> => {
     try {
-      const response = await apiRequest<ApiResponse<any[]>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>[]>>(
         `/supplier-interests/supplier/${supplierId}`
       );
       return response.data;
@@ -82,7 +84,7 @@ export const supplierInterestsApi = {
     try {
       const queryParams = new URLSearchParams({
         productTypes: productTypes.join(","),
-        ...(params as any),
+        ...(params as Record<string, string>),
       }).toString();
       const response = await apiRequest<ApiResponse<Order[]>>(
         `/supplier-interests/orders/by-product-types?${queryParams}`

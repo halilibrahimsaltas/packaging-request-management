@@ -1,8 +1,9 @@
 // API Configuration
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 // Generic API Response
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   message?: string;
   success: boolean;
@@ -16,13 +17,13 @@ export interface ApiError {
 }
 
 // HTTP Methods
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 // Request Options
 export interface RequestOptions {
   method?: HttpMethod;
   headers?: HeadersInit;
-  body?: any;
+  body?: string | FormData | URLSearchParams;
   signal?: AbortSignal;
 }
 
@@ -31,7 +32,7 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   sort?: string;
-  order?: 'ASC' | 'DESC';
+  order?: "ASC" | "DESC";
 }
 
 export interface PaginatedResponse<T> {
@@ -42,4 +43,4 @@ export interface PaginatedResponse<T> {
     total: number;
     totalPages: number;
   };
-} 
+}

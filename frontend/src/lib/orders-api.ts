@@ -28,7 +28,7 @@ export const ordersApi = {
   getMyOrders: async (params?: PaginationParams): Promise<Order[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams
         ? `/orders/my-orders?${queryParams}`
@@ -71,7 +71,7 @@ export const ordersApi = {
   getAllOrders: async (params?: OrderFilterParams): Promise<Order[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams ? `/orders?${queryParams}` : "/orders";
       const response = await apiRequest<ApiResponse<Order[]>>(url);
@@ -88,7 +88,7 @@ export const ordersApi = {
   ): Promise<Order[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams
         ? `/orders/with-supplier-interests?${queryParams}`

@@ -69,7 +69,7 @@ export const productsApi = {
   getAllProducts: async (params?: ProductFilterParams): Promise<Product[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams ? `/products?${queryParams}` : "/products";
       const response = await apiRequest<ApiResponse<Product[]>>(url);
