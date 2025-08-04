@@ -24,6 +24,41 @@ A full-stack application to manage packaging requests and supplier responses, de
 - **Product Management**: Add, edit, and delete products
 - **Order Tracking**: View all orders and supplier interests
 
+## 📸 Screenshots
+
+The application includes comprehensive screenshots demonstrating all major features and user interfaces. You can find all screenshots in the `screenshots/` directory.
+
+### Key Screenshots:
+
+- **Authentication**: Login and registration pages with modern UI design
+- **Admin Dashboard**: User management, product catalog, and request management interfaces
+- **Customer Interface**: Product browsing, cart management, and order tracking
+- **Supplier Dashboard**: Request filtering, order details, and interest management
+- **Deployment**: Railway deployment logs and application status
+
+### Available Screenshots:
+
+- `login.png` - User login interface
+- `register.png` - User registration interface
+- `admin user.png` - Admin user management
+- `admin ürün.png` - Admin product management
+- `admin ürün ekle.png` - Add product interface
+- `admin talep.png` - Admin request management
+- `admin talep incle.png` - Request details modal
+- `customer dasboard.png` - Customer dashboard
+- `customer product.png` - Customer product catalog
+- `customer spet.png` - Customer cart/specifications
+- `customer talep.png` - Customer request management
+- `customer supllier.png` - Customer supplier view
+- `vendor_orders.png` - Supplier orders view
+- `vendor interested.png` - Supplier interest management
+- `vendor interedted.png` - Supplier interest details
+- `vendor detail.png` - Vendor/supplier details
+- `filter.png` - Filtering interface
+- `railway deploy.png` - Railway deployment logs
+
+All screenshots are located in the `screenshots/` directory and can be accessed to see the complete user interface and functionality of the application.
+
 ## 🔧 Technical Stack
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, Material-UI, React Context, JWT Authentication, Toast Notifications

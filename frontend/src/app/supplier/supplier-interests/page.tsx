@@ -57,6 +57,16 @@ export default function SupplierInterestsPage() {
       try {
         setLoading(true);
         console.log("Loading supplier interests from backend...");
+        console.log("Current user:", user);
+        console.log("Access token:", localStorage.getItem("accessToken"));
+
+        // Check if user is authenticated
+        if (!user) {
+          console.error("User not authenticated");
+          showError(t("auth.error.notAuthenticated"));
+          setInterests([]);
+          return;
+        }
 
         // Get supplier interests for current supplier
         const supplierInterests = await supplierInterestsApi.getMyInterests();
@@ -93,8 +103,17 @@ export default function SupplierInterestsPage() {
 
         console.log("Transformed interests:", transformedInterests);
         setInterests(transformedInterests);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading supplier interests:", error);
+        
+        // Handle authentication errors specifically
+        if (error.status === 401) {
+          showError(t("auth.error.unauthorized"));
+          // Redirect to login or refresh token
+          window.location.href = "/auth/login";
+          return;
+        }
+        
         showError(t("supplier.interests.error.load"));
         setInterests([]);
       } finally {

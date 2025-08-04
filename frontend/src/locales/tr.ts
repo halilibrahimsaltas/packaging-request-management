@@ -68,6 +68,8 @@ export const tr = {
   "auth.register.passwordTooShort": "Şifre en az 6 karakter olmalıdır",
   "auth.register.errorMessage": "Kayıt sırasında bir hata oluştu",
   "auth.login.errorMessage": "Giriş sırasında bir hata oluştu",
+  "auth.error.notAuthenticated": "Kullanıcı kimlik doğrulaması yapılmamış",
+  "auth.error.unauthorized": "Yetkilendirme hatası. Lütfen tekrar giriş yapın.",
 
   // Login page hardcoded texts
   "auth.login.adminPanel": "Yönetici Paneli",

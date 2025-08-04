@@ -69,6 +69,8 @@ export const en = {
   "auth.register.passwordTooShort": "Password must be at least 6 characters",
   "auth.register.errorMessage": "An error occurred during registration",
   "auth.login.errorMessage": "An error occurred during login",
+  "auth.error.notAuthenticated": "User not authenticated",
+  "auth.error.unauthorized": "Authorization error. Please login again.",
 
   // Login page hardcoded texts
   "auth.login.adminPanel": "Admin Panel",

@@ -51,6 +51,36 @@ export async function apiRequest<T>(
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`API Error: ${response.status} - ${errorText}`);
+
+      // Handle 401 Unauthorized errors
+      if (response.status === 401) {
+        // Try to refresh token
+        const refreshSuccess = await apiUtils.refreshTokenIfNeeded();
+        if (refreshSuccess) {
+          // Retry the request with new token
+          const newToken = localStorage.getItem("accessToken");
+          if (newToken) {
+            config.headers = {
+              ...config.headers,
+              Authorization: `Bearer ${newToken}`,
+            };
+            const retryResponse = await fetch(url, config);
+            if (retryResponse.ok) {
+              const retryData = await retryResponse.json();
+              console.log(`API Response (after refresh):`, retryData);
+              return retryData;
+            }
+          }
+        }
+
+        // If refresh failed or retry failed, clear auth and throw error
+        apiUtils.logout();
+        throw new ApiError(
+          response.status,
+          `Authentication failed: ${errorText}`
+        );
+      }
+
       throw new ApiError(
         response.status,
         `HTTP error! status: ${response.status} - ${errorText}`
