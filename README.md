@@ -7,7 +7,7 @@ The frontend of this project is deployed on Vercel, while the backend and Postgr
 
 ## 🎬 Demo Video
 
-[![Watch the video](https://i.sstatic.net/Vp2cE.png)](https://youtu.be/HVldvkwuOeQ)
+https://github.com/user-attachments/assets/70d0ad80-ec3c-44d4-b1cd-93f46a070511
 
 ## 🚀 Features
 
