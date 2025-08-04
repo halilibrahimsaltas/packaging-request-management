@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filter/http-exception.filter';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
-// import { seedDatabase } from './mock-data/seed';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -12,6 +12,7 @@ import {
   IconButton,
   Fade,
   Slide,
+  CircularProgress,
 } from "@mui/material";
 import {
   Visibility,
@@ -29,12 +30,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
+import { useLoading } from "@/context/LoadingContext";
 import { UserRole } from "@/types/role.type";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function LoginPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { login } = useAuth();
+  const { showLoading, hideLoading } = useLoading();
   const [form, setForm] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +52,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    showLoading("Giriş yapılıyor...");
     setError("");
 
     try {
@@ -75,7 +80,6 @@ export default function LoginPage() {
       let errorMessage = "Giriş sırasında bir hata oluştu";
 
       if (error.message) {
-        // Backend'den gelen JSON hata mesajını parse et
         if (error.message.includes("HTTP error!")) {
           try {
             const errorMatch = error.message.match(/\{.*\}/);
@@ -85,7 +89,6 @@ export default function LoginPage() {
                 errorData.message || "Giriş sırasında bir hata oluştu";
             }
           } catch (parseError) {
-            // JSON parse hatası durumunda orijinal mesajı kullan
             errorMessage = error.message;
           }
         } else if (error.message.includes("Invalid credentials")) {
@@ -111,10 +114,9 @@ export default function LoginPage() {
       setError(errorMessage);
     } finally {
       setIsLoading(false);
+      hideLoading();
     }
   };
-
-  // ...demo login function removed...
 
   return (
     <Box
@@ -411,7 +413,13 @@ export default function LoginPage() {
                   variant="contained"
                   disabled={isLoading}
                   size="large"
-                  endIcon={isLoading ? null : <ArrowForward />}
+                  endIcon={
+                    isLoading ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <ArrowForward />
+                    )
+                  }
                   sx={{
                     py: 2,
                     fontSize: "1.1rem",
@@ -434,7 +442,7 @@ export default function LoginPage() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {isLoading ? t("auth.login.loading") : t("auth.login.button")}
+                  {isLoading ? "Giriş yapılıyor..." : t("auth.login.button")}
                 </Button>
               </form>
 

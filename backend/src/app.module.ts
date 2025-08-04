@@ -13,7 +13,6 @@ import { OrderItem } from './orders/entities/order-item.entity';
 import { SupplierInterest } from './supplier-interests/entities/supplier-interest.entity';
 import { DataSource } from 'typeorm';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -30,6 +29,7 @@ import { DataSource } from 'typeorm';
         entities: [User, Product, Order, OrderItem, SupplierInterest],
         synchronize: true,
         logging: true,
+        autoLoadEntities: true,
       }),
     }),
     UsersModule,

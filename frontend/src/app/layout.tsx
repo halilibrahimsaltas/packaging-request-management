@@ -9,6 +9,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/components/Toast";
+import { LoadingProvider } from "@/context/LoadingContext";
+import { PageLoadingHandler } from "@/components/PageLoadingHandler";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -158,17 +160,20 @@ export default function RootLayout({
           <AuthProvider>
             <LanguageProvider>
               <CartProvider>
-                <ToastProvider>
-                  <div
-                    style={{
-                      minHeight: "100vh",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {children}
-                  </div>
-                </ToastProvider>
+                <LoadingProvider>
+                  <ToastProvider>
+                    <PageLoadingHandler />
+                    <div
+                      style={{
+                        minHeight: "100vh",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      {children}
+                    </div>
+                  </ToastProvider>
+                </LoadingProvider>
               </CartProvider>
             </LanguageProvider>
           </AuthProvider>

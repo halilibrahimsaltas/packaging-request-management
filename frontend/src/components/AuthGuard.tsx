@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/types/role.type";
 import { AuthGuardProps } from "@/types/auth.types";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export const AuthGuard = ({
   children,
@@ -42,18 +43,7 @@ export const AuthGuard = ({
   }, [isAuthenticated, loading, user, requiredRole, router, redirectTo]);
 
   if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <div>Loading...</div>
-      </div>
-    );
+    return <LoadingSpinner fullScreen message="Kimlik doğrulanıyor..." />;
   }
 
   if (!isAuthenticated) {
