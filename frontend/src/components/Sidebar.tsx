@@ -16,6 +16,7 @@ import {
   Avatar,
   Chip,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -60,6 +61,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleLogout = () => {
     logout();
@@ -147,12 +149,22 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
   const currentMenuItems = user?.role ? menuItems[user.role as UserRole] : [];
   const currentRoleInfo = user?.role ? roleInfo[user.role as UserRole] : null;
 
+  const handleMenuItemClick = (href: string) => {
+    router.push(href);
+    if (isMobile && onToggle) {
+      onToggle();
+    }
+  };
+
   return (
     <Drawer
-      variant="permanent"
+      variant={isMobile ? "temporary" : "permanent"}
+      open={isMobile ? open : true}
+      onClose={isMobile ? onToggle : undefined}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
+        display: { xs: "block", md: "block" },
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -160,10 +172,11 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           borderRight: "none",
           boxSizing: "border-box",
           boxShadow: "4px 0 20px rgba(0,0,0,0.1)",
+          zIndex: isMobile ? 1200 : 1100,
         },
       }}
     >
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: { xs: 2, sm: 3 } }}>
         {/* Logo Section */}
         <Box
           display="flex"
@@ -172,7 +185,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           mb={4}
         >
           <Typography
-            variant="h5"
+            variant={isMobile ? "h6" : "h5"}
             fontWeight={700}
             color="white"
             sx={{
@@ -181,10 +194,26 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              fontSize: {
+                xs: "1.1rem",
+                sm: "1.25rem",
+                md: "1.5rem",
+              },
             }}
           >
             {t("app.title")}
           </Typography>
+          {isMobile && (
+            <IconButton
+              onClick={onToggle}
+              sx={{
+                color: "white",
+                p: 0.5,
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
         </Box>
 
         {/* User Role Badge */}
@@ -192,7 +221,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           <Box
             sx={{
               mb: 3,
-              p: 2,
+              p: { xs: 1.5, sm: 2 },
               borderRadius: 2,
               background: "rgba(255,255,255,0.1)",
               backdropFilter: "blur(10px)",
@@ -202,7 +231,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 sx={{
-                  p: 1,
+                  p: { xs: 0.5, sm: 1 },
                   borderRadius: 1,
                   backgroundColor: currentRoleInfo.color,
                   display: "flex",
@@ -212,7 +241,16 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
               >
                 {currentRoleInfo.icon}
               </Box>
-              <Typography variant="body2" fontWeight={600}>
+              <Typography
+                variant="body2"
+                fontWeight={600}
+                sx={{
+                  fontSize: {
+                    xs: "0.8rem",
+                    sm: "0.875rem",
+                  },
+                }}
+              >
                 {currentRoleInfo.text}
               </Typography>
             </Box>
@@ -228,6 +266,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             letterSpacing: 1,
             mb: 2,
             display: "block",
+            fontSize: {
+              xs: "0.7rem",
+              sm: "0.75rem",
+            },
           }}
         >
           {t("common.menu")}
@@ -239,7 +281,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             return (
               <ListItem key={i} disablePadding sx={{ mb: 1 }}>
                 <ListItemButton
-                  onClick={() => router.push(item.href)}
+                  onClick={() => handleMenuItemClick(item.href)}
                   sx={{
                     borderRadius: 2,
                     color: "white",
@@ -255,12 +297,14 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                       transform: "translateX(4px)",
                     },
                     transition: "all 0.3s ease",
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 1.5, sm: 2 },
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       color: isActive ? "white" : "rgba(255,255,255,0.8)",
-                      minWidth: 40,
+                      minWidth: { xs: 36, sm: 40 },
                     }}
                   >
                     {item.icon}
@@ -270,7 +314,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                     sx={{
                       "& .MuiTypography-root": {
                         fontWeight: isActive ? 600 : 500,
-                        fontSize: "0.9rem",
+                        fontSize: {
+                          xs: "0.8rem",
+                          sm: "0.9rem",
+                        },
                       },
                     }}
                   />
@@ -311,6 +358,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             letterSpacing: 1,
             mb: 2,
             display: "block",
+            fontSize: {
+              xs: "0.7rem",
+              sm: "0.75rem",
+            },
           }}
         >
           {t("common.user")}
@@ -330,9 +381,13 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                   transform: "translateX(4px)",
                 },
                 transition: "all 0.3s ease",
+                py: { xs: 1, sm: 1.5 },
+                px: { xs: 1.5, sm: 2 },
               }}
             >
-              <ListItemIcon sx={{ color: "#ff6b6b", minWidth: 40 }}>
+              <ListItemIcon
+                sx={{ color: "#ff6b6b", minWidth: { xs: 36, sm: 40 } }}
+              >
                 <Logout />
               </ListItemIcon>
               <ListItemText
@@ -340,7 +395,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                 sx={{
                   "& .MuiTypography-root": {
                     fontWeight: 600,
-                    fontSize: "0.9rem",
+                    fontSize: {
+                      xs: "0.8rem",
+                      sm: "0.9rem",
+                    },
                   },
                 }}
               />

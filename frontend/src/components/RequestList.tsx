@@ -22,6 +22,9 @@ import {
   Select,
   MenuItem,
   Paper,
+  useTheme,
+  useMediaQuery,
+  Stack,
 } from "@mui/material";
 import {
   Add,
@@ -61,6 +64,9 @@ export default function RequestList({
   userRole,
 }: RequestListProps) {
   const { t } = useLanguage();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newRequest, setNewRequest] = useState({
     title: "",
@@ -81,12 +87,25 @@ export default function RequestList({
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: { xs: "stretch", sm: "center" },
+          gap: { xs: 2, sm: 0 },
           mb: 3,
         }}
       >
-        <Typography variant="h5" component="h2" fontWeight={600}>
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          component="h2"
+          fontWeight={600}
+          sx={{
+            fontSize: {
+              xs: "1.25rem",
+              sm: "1.5rem",
+              md: "1.75rem",
+            },
+          }}
+        >
           {userRole === "CUSTOMER"
             ? t("components.requestList.title.customer")
             : t("components.requestList.title.other")}
@@ -101,6 +120,8 @@ export default function RequestList({
               "&:hover": {
                 background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
               },
+              width: { xs: "100%", sm: "auto" },
+              py: { xs: 1.5, sm: 1 },
             }}
           >
             {t("components.requestList.createButton")}
@@ -109,15 +130,40 @@ export default function RequestList({
       </Box>
 
       {/* Request List */}
-      <Card elevation={2} sx={{ borderRadius: 3 }}>
+      <Card elevation={2} sx={{ borderRadius: { xs: 2, sm: 3 } }}>
         <CardContent sx={{ p: 0 }}>
           {requests.length === 0 ? (
-            <Box sx={{ p: 4, textAlign: "center" }}>
-              <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Box sx={{ p: { xs: 3, sm: 4 }, textAlign: "center" }}>
+              <Inventory
+                sx={{
+                  fontSize: { xs: 48, sm: 64 },
+                  color: "grey.400",
+                  mb: 2,
+                }}
+              />
+              <Typography
+                variant={isMobile ? "h6" : "h6"}
+                color="text.secondary"
+                gutterBottom
+                sx={{
+                  fontSize: {
+                    xs: "1.1rem",
+                    sm: "1.25rem",
+                  },
+                }}
+              >
                 {t("components.requestList.empty.title")}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  fontSize: {
+                    xs: "0.875rem",
+                    sm: "1rem",
+                  },
+                }}
+              >
                 {userRole === "CUSTOMER"
                   ? t("components.requestList.empty.subtitle.customer")
                   : t("components.requestList.empty.subtitle.other")}
@@ -129,24 +175,36 @@ export default function RequestList({
                 <ListItem
                   key={request.id}
                   sx={{
-                    px: 3,
-                    py: 2,
+                    px: { xs: 2, sm: 3 },
+                    py: { xs: 1.5, sm: 2 },
                     borderBottom:
                       index < requests.length - 1
                         ? "1px solid #e0e0e0"
                         : "none",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "stretch", sm: "center" },
                   }}
                 >
-                  <Box sx={{ flex: 1 }}>
+                  <Box sx={{ flex: 1, width: "100%" }}>
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
-                        gap: 2,
+                        flexDirection: { xs: "column", sm: "row" },
+                        alignItems: { xs: "flex-start", sm: "center" },
+                        gap: { xs: 1, sm: 2 },
                         mb: 1,
                       }}
                     >
-                      <Typography variant="h6" fontWeight={600}>
+                      <Typography
+                        variant={isMobile ? "h6" : "h6"}
+                        fontWeight={600}
+                        sx={{
+                          fontSize: {
+                            xs: "1rem",
+                            sm: "1.25rem",
+                          },
+                        }}
+                      >
                         {request.title}
                       </Typography>
                       <Chip
@@ -154,16 +212,32 @@ export default function RequestList({
                         label={request.productType}
                         size="small"
                         variant="outlined"
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                          },
+                        }}
                       />
                     </Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ mb: 1 }}
+                      sx={{
+                        mb: 1,
+                        fontSize: {
+                          xs: "0.875rem",
+                          sm: "1rem",
+                        },
+                      }}
                     >
                       {request.description}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={{ xs: 1, sm: 2 }}
+                      alignItems={{ xs: "flex-start", sm: "center" }}
+                    >
                       <Chip
                         icon={<CalendarToday />}
                         label={new Date(request.createdAt).toLocaleDateString(
@@ -171,26 +245,49 @@ export default function RequestList({
                         )}
                         size="small"
                         variant="outlined"
+                        sx={{
+                          fontSize: {
+                            xs: "0.75rem",
+                            sm: "0.875rem",
+                          },
+                        }}
                       />
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          fontSize: {
+                            xs: "0.875rem",
+                            sm: "1rem",
+                          },
+                        }}
+                      >
                         {t("components.requestList.quantity.label", {
                           quantity: request.quantity,
                         })}
                       </Typography>
-                    </Box>
+                    </Stack>
                   </Box>
-                  <ListItemSecondaryAction>
+                  <ListItemSecondaryAction
+                    sx={{
+                      position: { xs: "static", sm: "relative" },
+                      transform: { xs: "none", sm: "translateX(0)" },
+                      mt: { xs: 2, sm: 0 },
+                      display: "flex",
+                      justifyContent: { xs: "flex-end", sm: "flex-start" },
+                    }}
+                  >
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton
                         onClick={() => onViewRequest(request)}
-                        size="small"
+                        size={isMobile ? "medium" : "small"}
                       >
                         <Visibility />
                       </IconButton>
                       {userRole === "CUSTOMER" && onEditRequest && (
                         <IconButton
                           onClick={() => onEditRequest(request)}
-                          size="small"
+                          size={isMobile ? "medium" : "small"}
                         >
                           <Edit />
                         </IconButton>
@@ -198,7 +295,7 @@ export default function RequestList({
                       {userRole === "CUSTOMER" && onDeleteRequest && (
                         <IconButton
                           onClick={() => onDeleteRequest(request.id)}
-                          size="small"
+                          size={isMobile ? "medium" : "small"}
                           color="error"
                         >
                           <Delete />
@@ -219,14 +316,36 @@ export default function RequestList({
         onClose={() => setCreateDialogOpen(false)}
         maxWidth="md"
         fullWidth
+        sx={{
+          "& .MuiDialog-paper": {
+            margin: { xs: 2, sm: 4 },
+            width: { xs: "calc(100% - 32px)", sm: "auto" },
+          },
+        }}
       >
         <DialogTitle>
-          <Typography variant="h6" fontWeight={600}>
+          <Typography
+            variant={isMobile ? "h6" : "h6"}
+            fontWeight={600}
+            sx={{
+              fontSize: {
+                xs: "1.1rem",
+                sm: "1.25rem",
+              },
+            }}
+          >
             {t("components.requestList.dialog.create.title")}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+          <Box
+            sx={{
+              mt: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: { xs: 2, sm: 3 },
+            }}
+          >
             <TextField
               fullWidth
               label={t("components.requestList.dialog.create.title.label")}
@@ -235,6 +354,7 @@ export default function RequestList({
                 setNewRequest({ ...newRequest, title: e.target.value })
               }
               required
+              size={isMobile ? "medium" : "small"}
             />
             <TextField
               fullWidth
@@ -242,14 +362,18 @@ export default function RequestList({
                 "components.requestList.dialog.create.description.label"
               )}
               multiline
-              rows={3}
+              rows={isMobile ? 4 : 3}
               value={newRequest.description}
               onChange={(e) =>
                 setNewRequest({ ...newRequest, description: e.target.value })
               }
               required
+              size={isMobile ? "medium" : "small"}
             />
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 2, sm: 2 }}
+            >
               <FormControl fullWidth required>
                 <InputLabel>
                   {t("components.requestList.dialog.create.productType.label")}
@@ -265,6 +389,7 @@ export default function RequestList({
                   label={t(
                     "components.requestList.dialog.create.productType.label"
                   )}
+                  size={isMobile ? "medium" : "small"}
                 >
                   <MenuItem value="Karton Kutu">Karton Kutu</MenuItem>
                   <MenuItem value="Plastik Ambalaj">Plastik Ambalaj</MenuItem>
@@ -286,12 +411,16 @@ export default function RequestList({
                 }
                 required
                 inputProps={{ min: 1 }}
+                size={isMobile ? "medium" : "small"}
               />
-            </Box>
+            </Stack>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setCreateDialogOpen(false)}>
+        <DialogActions sx={{ p: { xs: 2, sm: 3 } }}>
+          <Button
+            onClick={() => setCreateDialogOpen(false)}
+            size={isMobile ? "large" : "medium"}
+          >
             {t("components.requestList.dialog.create.cancel")}
           </Button>
           <Button
@@ -308,6 +437,7 @@ export default function RequestList({
                 background: "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
               },
             }}
+            size={isMobile ? "large" : "medium"}
           >
             {t("components.requestList.dialog.create.create")}
           </Button>
