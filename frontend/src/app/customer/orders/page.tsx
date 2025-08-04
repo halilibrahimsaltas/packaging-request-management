@@ -20,6 +20,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Delete,
@@ -48,6 +50,10 @@ export default function CustomerOrdersPage() {
   const { items, updateQuantity, removeFromCart, clearCart, getTotalItems } =
     useCart();
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const handleQuantityChange = (productId: number, newQuantity: number) => {
@@ -98,16 +104,15 @@ export default function CustomerOrdersPage() {
         })),
       };
 
-      console.log("Sipariş verisi:", orderData);
+      // Backend'e sipariş gönder
+      const createdOrder = await ordersApi.createOrder(orderData);
+      console.log("Order created:", createdOrder);
 
-      // Backend API çağrısı
-      const response = await ordersApi.createOrder(orderData);
-
-      showSuccess(t("customer.cart.success.orderCreated"));
       clearCart();
       setConfirmDialogOpen(false);
 
-      // Talep sayfasına yönlendir
+      showSuccess(t("customer.cart.success.orderCreated"));
+
       router.push("/customer/request");
     } catch (error) {
       showError(t("customer.cart.error.createOrder"));
@@ -117,13 +122,21 @@ export default function CustomerOrdersPage() {
 
   const getTypeColor = (type: string) => {
     const colors: { [key: string]: string } = {
-      "Karton Kutu": "#4caf50",
-      "Plastik Ambalaj": "#2196f3",
-      "Cam Ambalaj": "#ff9800",
-      "Metal Ambalaj": "#9c27b0",
-      "Kağıt Ambalaj": "#795548",
+      PACKAGING: "#4caf50",
+      LABELS: "#2196f3",
+      CONTAINERS: "#ff9800",
+      BOX: "#9c27b0",
+      BAG: "#f44336",
+      WRAPPER: "#795548",
     };
     return colors[type] || "#757575";
+  };
+
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
   };
 
   return (
@@ -140,8 +153,14 @@ export default function CustomerOrdersPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(),
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`,
+            },
             minHeight: "100vh",
           }}
         >

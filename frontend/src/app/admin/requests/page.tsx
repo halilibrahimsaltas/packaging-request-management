@@ -24,6 +24,8 @@ import {
   Divider,
   Skeleton,
   Avatar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Visibility,
@@ -49,6 +51,10 @@ export default function AdminRequestsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { showSuccess, showError } = useToast();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,8 +104,9 @@ export default function AdminRequestsPage() {
       PACKAGING: "#4caf50",
       LABELS: "#2196f3",
       CONTAINERS: "#ff9800",
-      BAGS: "#9c27b0",
-      BOXES: "#795548",
+      BOX: "#9c27b0",
+      BAG: "#f44336",
+      WRAPPER: "#795548",
     };
     return colors[type] || "#757575";
   };
@@ -117,10 +124,17 @@ export default function AdminRequestsPage() {
   const getInitials = (username: string) => {
     return username
       .split(" ")
-      .map((name) => name[0])
+      .map((name) => name.charAt(0))
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
   };
 
   return (
@@ -137,8 +151,14 @@ export default function AdminRequestsPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(),
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`,
+            },
             minHeight: "100vh",
           }}
         >

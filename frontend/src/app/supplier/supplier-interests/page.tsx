@@ -105,7 +105,7 @@ export default function SupplierInterestsPage() {
         setInterests(transformedInterests);
       } catch (error: any) {
         console.error("Error loading supplier interests:", error);
-        
+
         // Handle authentication errors specifically
         if (error.status === 401) {
           showError(t("auth.error.unauthorized"));
@@ -113,7 +113,7 @@ export default function SupplierInterestsPage() {
           window.location.href = "/auth/login";
           return;
         }
-        
+
         showError(t("supplier.interests.error.load"));
         setInterests([]);
       } finally {

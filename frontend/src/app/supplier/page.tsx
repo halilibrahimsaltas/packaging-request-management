@@ -10,6 +10,8 @@ import {
   Chip,
   Button,
   Skeleton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Assignment,
@@ -33,6 +35,10 @@ export default function SupplierDashboard() {
   const { t } = useLanguage();
   const { showError } = useToast();
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -139,6 +145,13 @@ export default function SupplierDashboard() {
     </Card>
   );
 
+  // Responsive sidebar width
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
+  };
+
   return (
     <AuthGuard requiredRole={UserRole.SUPPLIER}>
       <Box sx={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
@@ -153,8 +166,14 @@ export default function SupplierDashboard() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(),
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`,
+            },
             minHeight: "100vh",
           }}
         >
@@ -174,7 +193,11 @@ export default function SupplierDashboard() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(auto-fit, minmax(250px, 1fr))",
+              },
               gap: 3,
               mb: 3,
             }}
@@ -215,7 +238,14 @@ export default function SupplierDashboard() {
               <Typography variant="h6" fontWeight={600} gutterBottom>
                 {t("supplier.dashboard.quickActions.title")}
               </Typography>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  flexWrap: "wrap",
+                  flexDirection: { xs: "column", sm: "row" },
+                }}
+              >
                 <Button
                   variant="contained"
                   startIcon={<Visibility />}

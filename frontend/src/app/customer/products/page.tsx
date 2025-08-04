@@ -24,6 +24,8 @@ import {
   Paper,
   Skeleton,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Search,
@@ -52,6 +54,10 @@ export default function CustomerProductsPage() {
   const { showSuccess, showError, showInfo, showWarning } = useToast();
   const { addToCart, getCartItem, getTotalItems } = useCart();
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,15 +122,7 @@ export default function CustomerProductsPage() {
     }
 
     setFilteredProducts(filtered);
-
-    // Show filter results - sadece bir kez göster
-    if (
-      (searchTerm || selectedTypes.length > 0) &&
-      filtered.length !== products.length
-    ) {
-      // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
-    }
-  }, [products, searchTerm, selectedTypes, showInfo]);
+  }, [products, searchTerm, selectedTypes]);
 
   const handleTypeChange = (event: any) => {
     const value = event.target.value;
@@ -137,31 +135,31 @@ export default function CustomerProductsPage() {
   };
 
   const handleViewProduct = (product: Product) => {
-    console.log("View product:", product);
+    // Product detay sayfasına yönlendirme
+    console.log("Viewing product:", product);
   };
 
   const handleAddToCart = (product: Product) => {
     const quantity = quantities[product.id] || 1;
+    if (quantity <= 0) {
+      showWarning(t("customer.products.warning.invalidQuantity"));
+      return;
+    }
+
     addToCart(product.id, product.name, product.type, quantity);
     showSuccess(
       t("customer.products.success.addedToCart", {
         name: product.name,
-        quantity,
+        quantity: quantity,
       })
     );
-
-    // Miktarı sıfırla
-    setQuantities((prev) => ({
-      ...prev,
-      [product.id]: 1,
-    }));
   };
 
   const handleQuantityChange = (productId: number, value: string) => {
-    const numValue = parseInt(value) || 1;
+    const numValue = parseInt(value) || 0;
     setQuantities((prev) => ({
       ...prev,
-      [productId]: Math.max(1, numValue),
+      [productId]: numValue,
     }));
   };
 
@@ -169,7 +167,12 @@ export default function CustomerProductsPage() {
     router.push("/customer/orders");
   };
 
-  const hasItemsInCart = getTotalItems() > 0;
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
+  };
 
   return (
     <AuthGuard requiredRole={UserRole.CUSTOMER}>
@@ -185,8 +188,14 @@ export default function CustomerProductsPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(), // Only apply margin on lg and above
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`, // Only apply width calculation on lg and above
+            },
             minHeight: "100vh",
           }}
         >
@@ -281,7 +290,7 @@ export default function CustomerProductsPage() {
 
                   {/* Dynamic Action Button */}
                   <Box sx={{ ml: "auto" }}>
-                    {hasItemsInCart && (
+                    {getTotalItems() > 0 && (
                       <Button
                         variant="contained"
                         startIcon={<CheckCircle />}

@@ -31,6 +31,8 @@ import {
   Switch,
   FormControlLabel,
   Fab,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Search,
@@ -57,6 +59,10 @@ export default function AdminProductsPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { showSuccess, showError, showInfo } = useToast();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -212,6 +218,13 @@ export default function AdminProductsPage() {
     setEditDialogOpen(true);
   };
 
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
+  };
+
   return (
     <AuthGuard requiredRole={UserRole.ADMIN}>
       <Box sx={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
@@ -226,8 +239,14 @@ export default function AdminProductsPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(), // Only apply margin on lg and above
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`, // Only apply width calculation on lg and above
+            },
             minHeight: "100vh",
           }}
         >

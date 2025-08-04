@@ -62,6 +62,8 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const handleLogout = () => {
     logout();
@@ -151,32 +153,47 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
 
   const handleMenuItemClick = (href: string) => {
     router.push(href);
-    if (isMobile && onToggle) {
-      onToggle();
-    }
+  };
+
+  // Responsive width based on screen size
+  const getResponsiveWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
+  };
+
+  const getResponsivePadding = () => {
+    if (isSmallScreen) return { xs: 1, sm: 1.5 };
+    if (isTablet) return { xs: 1.5, sm: 2 };
+    return { xs: 2, sm: 3 };
+  };
+
+  const getResponsiveFontSize = () => {
+    if (isSmallScreen) return { xs: "0.8rem", sm: "0.9rem" };
+    if (isTablet) return { xs: "0.9rem", sm: "1rem" };
+    return { xs: "1rem", sm: "1.1rem" };
   };
 
   return (
     <Drawer
-      variant={isMobile ? "temporary" : "permanent"}
-      open={isMobile ? open : true}
-      onClose={isMobile ? onToggle : undefined}
+      variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: getResponsiveWidth(),
         flexShrink: 0,
-        display: { xs: "block", md: "block" },
+        display: { xs: "none", md: "block", lg: "block" },
         "& .MuiDrawer-paper": {
-          width: drawerWidth,
+          width: getResponsiveWidth(),
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
           borderRight: "none",
           boxSizing: "border-box",
           boxShadow: "4px 0 20px rgba(0,0,0,0.1)",
-          zIndex: isMobile ? 1200 : 1100,
+          zIndex: 1100,
+          overflowX: "hidden",
         },
       }}
     >
-      <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ p: getResponsivePadding() }}>
         {/* Logo Section */}
         <Box
           display="flex"
@@ -185,7 +202,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           mb={4}
         >
           <Typography
-            variant={isMobile ? "h6" : "h5"}
+            variant={isSmallScreen ? "h6" : "h5"}
             fontWeight={700}
             color="white"
             sx={{
@@ -195,25 +212,16 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
               WebkitTextFillColor: "transparent",
               textShadow: "0 2px 4px rgba(0,0,0,0.1)",
               fontSize: {
-                xs: "1.1rem",
-                sm: "1.25rem",
-                md: "1.5rem",
+                xs: "0.9rem",
+                sm: "1rem",
+                md: "1.1rem",
+                lg: "1.25rem",
+                xl: "1.5rem",
               },
             }}
           >
             {t("app.title")}
           </Typography>
-          {isMobile && (
-            <IconButton
-              onClick={onToggle}
-              sx={{
-                color: "white",
-                p: 0.5,
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          )}
         </Box>
 
         {/* User Role Badge */}
@@ -221,7 +229,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
           <Box
             sx={{
               mb: 3,
-              p: { xs: 1.5, sm: 2 },
+              p: { xs: 0.75, sm: 1, md: 1.5, lg: 2 },
               borderRadius: 2,
               background: "rgba(255,255,255,0.1)",
               backdropFilter: "blur(10px)",
@@ -231,7 +239,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 sx={{
-                  p: { xs: 0.5, sm: 1 },
+                  p: { xs: 0.4, sm: 0.5, md: 0.75, lg: 1 },
                   borderRadius: 1,
                   backgroundColor: currentRoleInfo.color,
                   display: "flex",
@@ -246,8 +254,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                 fontWeight={600}
                 sx={{
                   fontSize: {
-                    xs: "0.8rem",
-                    sm: "0.875rem",
+                    xs: "0.7rem",
+                    sm: "0.75rem",
+                    md: "0.8rem",
+                    lg: "0.875rem",
                   },
                 }}
               >
@@ -267,8 +277,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             mb: 2,
             display: "block",
             fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
+              xs: "0.6rem",
+              sm: "0.65rem",
+              md: "0.7rem",
+              lg: "0.75rem",
             },
           }}
         >
@@ -297,14 +309,14 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                       transform: "translateX(4px)",
                     },
                     transition: "all 0.3s ease",
-                    py: { xs: 1, sm: 1.5 },
-                    px: { xs: 1.5, sm: 2 },
+                    py: { xs: 0.75, sm: 1, md: 1.25, lg: 1.5 },
+                    px: { xs: 0.75, sm: 1, md: 1.5, lg: 2 },
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       color: isActive ? "white" : "rgba(255,255,255,0.8)",
-                      minWidth: { xs: 36, sm: 40 },
+                      minWidth: { xs: 28, sm: 32, md: 36, lg: 40 },
                     }}
                   >
                     {item.icon}
@@ -314,10 +326,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                     sx={{
                       "& .MuiTypography-root": {
                         fontWeight: isActive ? 600 : 500,
-                        fontSize: {
-                          xs: "0.8rem",
-                          sm: "0.9rem",
-                        },
+                        fontSize: getResponsiveFontSize(),
                       },
                     }}
                   />
@@ -359,8 +368,10 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
             mb: 2,
             display: "block",
             fontSize: {
-              xs: "0.7rem",
-              sm: "0.75rem",
+              xs: "0.6rem",
+              sm: "0.65rem",
+              md: "0.7rem",
+              lg: "0.75rem",
             },
           }}
         >
@@ -381,12 +392,15 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                   transform: "translateX(4px)",
                 },
                 transition: "all 0.3s ease",
-                py: { xs: 1, sm: 1.5 },
-                px: { xs: 1.5, sm: 2 },
+                py: { xs: 0.75, sm: 1, md: 1.25, lg: 1.5 },
+                px: { xs: 0.75, sm: 1, md: 1.5, lg: 2 },
               }}
             >
               <ListItemIcon
-                sx={{ color: "#ff6b6b", minWidth: { xs: 36, sm: 40 } }}
+                sx={{
+                  color: "#ff6b6b",
+                  minWidth: { xs: 28, sm: 32, md: 36, lg: 40 },
+                }}
               >
                 <Logout />
               </ListItemIcon>
@@ -395,10 +409,7 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
                 sx={{
                   "& .MuiTypography-root": {
                     fontWeight: 600,
-                    fontSize: {
-                      xs: "0.8rem",
-                      sm: "0.9rem",
-                    },
+                    fontSize: getResponsiveFontSize(),
                   },
                 }}
               />

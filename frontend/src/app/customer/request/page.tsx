@@ -24,6 +24,8 @@ import {
   Divider,
   Skeleton,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Visibility,
@@ -49,6 +51,10 @@ export default function CustomerRequestPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { showSuccess, showError } = useToast();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,13 +110,11 @@ export default function CustomerRequestPage() {
     if (!orderToDelete) return;
 
     try {
-      await ordersApi.deleteMyOrder(orderToDelete.id);
-      showSuccess(t("customer.requests.success.deleted"));
-
-      // Remove from local state
-      setOrders(orders.filter((order) => order.id !== orderToDelete.id));
+      await ordersApi.deleteOrder(orderToDelete.id);
+      setOrders(orders.filter((o) => o.id !== orderToDelete.id));
       setDeleteDialogOpen(false);
       setOrderToDelete(null);
+      showSuccess(t("customer.requests.success.deleted"));
     } catch (error) {
       console.error("Error deleting order:", error);
       showError(t("customer.requests.error.delete"));
@@ -122,8 +126,9 @@ export default function CustomerRequestPage() {
       PACKAGING: "#4caf50",
       LABELS: "#2196f3",
       CONTAINERS: "#ff9800",
-      BAGS: "#9c27b0",
-      BOXES: "#795548",
+      BOX: "#9c27b0",
+      BAG: "#f44336",
+      WRAPPER: "#795548",
     };
     return colors[type] || "#757575";
   };
@@ -136,6 +141,13 @@ export default function CustomerRequestPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
   };
 
   return (
@@ -152,8 +164,14 @@ export default function CustomerRequestPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(), // Only apply margin on lg and above
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`, // Only apply width calculation on lg and above
+            },
             minHeight: "100vh",
           }}
         >

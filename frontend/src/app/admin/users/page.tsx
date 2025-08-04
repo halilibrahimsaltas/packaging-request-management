@@ -22,6 +22,8 @@ import {
   TableRow,
   Skeleton,
   Avatar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Search,
@@ -49,6 +51,10 @@ export default function AdminUsersPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { showSuccess, showError } = useToast();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("md", "lg"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
@@ -115,13 +121,13 @@ export default function AdminUsersPage() {
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "ADMIN":
-        return <AdminPanelSettings fontSize="small" />;
-      case "CUSTOMER":
-        return <Person fontSize="small" />;
+        return <AdminPanelSettings />;
       case "SUPPLIER":
-        return <Business fontSize="small" />;
+        return <Business />;
+      case "CUSTOMER":
+        return <Person />;
       default:
-        return <Person fontSize="small" />;
+        return <Person />;
     }
   };
 
@@ -129,10 +135,10 @@ export default function AdminUsersPage() {
     switch (role) {
       case "ADMIN":
         return t("admin.users.role.admin");
-      case "CUSTOMER":
-        return t("admin.users.role.customer");
       case "SUPPLIER":
         return t("admin.users.role.supplier");
+      case "CUSTOMER":
+        return t("admin.users.role.customer");
       default:
         return role;
     }
@@ -141,10 +147,17 @@ export default function AdminUsersPage() {
   const getInitials = (username: string) => {
     return username
       .split(" ")
-      .map((name) => name[0])
+      .map((name) => name.charAt(0))
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  // Responsive sidebar width - same as Sidebar component
+  const getSidebarWidth = () => {
+    if (isSmallScreen) return "200px";
+    if (isTablet) return "240px";
+    return "280px";
   };
 
   return (
@@ -161,8 +174,14 @@ export default function AdminUsersPage() {
           sx={{
             py: 2,
             px: 3,
-            marginLeft: "280px",
-            width: "calc(100% - 280px)",
+            marginLeft: {
+              xs: 0,
+              md: getSidebarWidth(),
+            },
+            width: {
+              xs: "100%",
+              md: `calc(100% - ${getSidebarWidth()})`,
+            },
             minHeight: "100vh",
           }}
         >
