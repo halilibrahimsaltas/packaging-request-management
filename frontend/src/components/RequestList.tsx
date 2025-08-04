@@ -87,7 +87,9 @@ export default function RequestList({
         }}
       >
         <Typography variant="h5" component="h2" fontWeight={600}>
-          {userRole === "CUSTOMER" ? "Taleplerim" : "Talepler"}
+          {userRole === "CUSTOMER"
+            ? t("components.requestList.title.customer")
+            : t("components.requestList.title.other")}
         </Typography>
         {userRole === "CUSTOMER" && (
           <Button
@@ -101,7 +103,7 @@ export default function RequestList({
               },
             }}
           >
-            Yeni Talep Oluştur
+            {t("components.requestList.createButton")}
           </Button>
         )}
       </Box>
@@ -113,12 +115,12 @@ export default function RequestList({
             <Box sx={{ p: 4, textAlign: "center" }}>
               <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                Henüz talep bulunmuyor
+                {t("components.requestList.empty.title")}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {userRole === "CUSTOMER"
-                  ? "İlk talebinizi oluşturmak için yukarıdaki butona tıklayın"
-                  : "Henüz size gelen talep bulunmuyor"}
+                  ? t("components.requestList.empty.subtitle.customer")
+                  : t("components.requestList.empty.subtitle.other")}
               </Typography>
             </Box>
           ) : (
@@ -171,7 +173,9 @@ export default function RequestList({
                         variant="outlined"
                       />
                       <Typography variant="body2" color="text.secondary">
-                        Miktar: {request.quantity}
+                        {t("components.requestList.quantity.label", {
+                          quantity: request.quantity,
+                        })}
                       </Typography>
                     </Box>
                   </Box>
@@ -218,14 +222,14 @@ export default function RequestList({
       >
         <DialogTitle>
           <Typography variant="h6" fontWeight={600}>
-            Yeni Talep Oluştur
+            {t("components.requestList.dialog.create.title")}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 1, display: "flex", flexDirection: "column", gap: 3 }}>
             <TextField
               fullWidth
-              label="Talep Başlığı"
+              label={t("components.requestList.dialog.create.title.label")}
               value={newRequest.title}
               onChange={(e) =>
                 setNewRequest({ ...newRequest, title: e.target.value })
@@ -234,7 +238,9 @@ export default function RequestList({
             />
             <TextField
               fullWidth
-              label="Açıklama"
+              label={t(
+                "components.requestList.dialog.create.description.label"
+              )}
               multiline
               rows={3}
               value={newRequest.description}
@@ -245,7 +251,9 @@ export default function RequestList({
             />
             <Box sx={{ display: "flex", gap: 2 }}>
               <FormControl fullWidth required>
-                <InputLabel>Ürün Türü</InputLabel>
+                <InputLabel>
+                  {t("components.requestList.dialog.create.productType.label")}
+                </InputLabel>
                 <Select
                   value={newRequest.productType}
                   onChange={(e) =>
@@ -254,7 +262,9 @@ export default function RequestList({
                       productType: e.target.value,
                     })
                   }
-                  label="Ürün Türü"
+                  label={t(
+                    "components.requestList.dialog.create.productType.label"
+                  )}
                 >
                   <MenuItem value="Karton Kutu">Karton Kutu</MenuItem>
                   <MenuItem value="Plastik Ambalaj">Plastik Ambalaj</MenuItem>
@@ -265,7 +275,7 @@ export default function RequestList({
               </FormControl>
               <TextField
                 fullWidth
-                label="Miktar"
+                label={t("components.requestList.dialog.create.quantity.label")}
                 type="number"
                 value={newRequest.quantity}
                 onChange={(e) =>
@@ -281,7 +291,9 @@ export default function RequestList({
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setCreateDialogOpen(false)}>İptal</Button>
+          <Button onClick={() => setCreateDialogOpen(false)}>
+            {t("components.requestList.dialog.create.cancel")}
+          </Button>
           <Button
             onClick={handleCreateRequest}
             variant="contained"
@@ -297,7 +309,7 @@ export default function RequestList({
               },
             }}
           >
-            Talep Oluştur
+            {t("components.requestList.dialog.create.create")}
           </Button>
         </DialogActions>
       </Dialog>

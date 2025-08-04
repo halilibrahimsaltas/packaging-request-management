@@ -27,17 +27,6 @@ async function bootstrap() {
   // Global response interceptor
   app.useGlobalInterceptors(new TransformResponseInterceptor());
 
-  // Seed database on startup (only in development)
-  // Temporarily disabled - will be enabled later
-  // if (process.env.NODE_ENV !== 'production') {
-  //   try {
-  //     await seedDatabase();
-  //     console.log('Database seeded successfully!');
-  //   } catch (error) {
-  //     console.log('Database seeding failed:', error.message);
-  //   }
-  // }
-
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

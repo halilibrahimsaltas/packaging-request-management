@@ -66,7 +66,7 @@ export default function SupplierDashboard() {
         });
       } catch (error) {
         console.error("Error loading dashboard stats:", error);
-        showError("Dashboard verileri yüklenirken hata oluştu");
+        showError(t("supplier.dashboard.error.load"));
         setStats({
           totalInterests: 0,
           activeInterests: 0,
@@ -79,7 +79,7 @@ export default function SupplierDashboard() {
     };
 
     loadStats();
-  }, [showError]);
+  }, [showError, t]);
 
   const handleNavigateTo = (path: string) => {
     router.push(path);
@@ -146,7 +146,7 @@ export default function SupplierDashboard() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Tedarikçi Dashboard" />
+        <Header title={t("supplier.dashboard.title")} />
 
         {/* Main Content */}
         <Box
@@ -162,11 +162,10 @@ export default function SupplierDashboard() {
           <Card elevation={2} sx={{ mb: 3, borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={600} gutterBottom>
-                Hoş geldiniz, {user?.username}!
+                {t("supplier.dashboard.welcome", { username: user?.username })}
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Tedarikçi panelinizde talepleri görüntüleyebilir ve ilgi
-                gösterebilirsiniz.
+                {t("supplier.dashboard.subtitle")}
               </Typography>
             </CardContent>
           </Card>
@@ -181,28 +180,28 @@ export default function SupplierDashboard() {
             }}
           >
             <StatCard
-              title="Toplam İlgi"
+              title={t("supplier.dashboard.stats.totalInterests")}
               value={stats.totalInterests}
               icon={<Assignment sx={{ color: "#667eea" }} />}
               color="#667eea"
               onClick={() => handleNavigateTo("/supplier/supplier-interests")}
             />
             <StatCard
-              title="Aktif İlgiler"
+              title={t("supplier.dashboard.stats.activeInterests")}
               value={stats.activeInterests}
               icon={<CheckCircle sx={{ color: "#4caf50" }} />}
               color="#4caf50"
               onClick={() => handleNavigateTo("/supplier/supplier-interests")}
             />
             <StatCard
-              title="Mevcut Talepler"
+              title={t("supplier.dashboard.stats.availableRequests")}
               value={stats.totalRequests}
               icon={<TrendingUp sx={{ color: "#ff9800" }} />}
               color="#ff9800"
               onClick={() => handleNavigateTo("/supplier/requests")}
             />
             <StatCard
-              title="Ürün Kataloğu"
+              title={t("supplier.dashboard.stats.productCatalog")}
               value={stats.availableProducts}
               icon={<Inventory sx={{ color: "#9c27b0" }} />}
               color="#9c27b0"
@@ -214,7 +213,7 @@ export default function SupplierDashboard() {
           <Card elevation={2} sx={{ borderRadius: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Hızlı İşlemler
+                {t("supplier.dashboard.quickActions.title")}
               </Typography>
               <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                 <Button
@@ -226,7 +225,7 @@ export default function SupplierDashboard() {
                     "&:hover": { backgroundColor: "#5a6fd8" },
                   }}
                 >
-                  Talepleri Görüntüle
+                  {t("supplier.dashboard.quickActions.viewRequests")}
                 </Button>
                 <Button
                   variant="outlined"
@@ -243,7 +242,7 @@ export default function SupplierDashboard() {
                     },
                   }}
                 >
-                  İlgilerimi Görüntüle
+                  {t("supplier.dashboard.quickActions.viewInterests")}
                 </Button>
                 <Button
                   variant="outlined"
@@ -258,7 +257,7 @@ export default function SupplierDashboard() {
                     },
                   }}
                 >
-                  Ürün Kataloğu
+                  {t("supplier.dashboard.quickActions.productCatalog")}
                 </Button>
               </Box>
             </CardContent>

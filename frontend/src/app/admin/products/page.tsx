@@ -82,7 +82,6 @@ export default function AdminProductsPage() {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        console.log("Loading products from backend...");
 
         // Get all products (admin can see all)
         const allProducts = await productsApi.getAllProducts();
@@ -92,11 +91,10 @@ export default function AdminProductsPage() {
 
         // Get available product types
         const types = await productsApi.getActiveProductTypes();
-        console.log("Product types received:", types);
         setAvailableTypes(types);
       } catch (error) {
         console.error("Error loading products:", error);
-        showError("Ürünler yüklenirken hata oluştu");
+        showError(t("admin.products.error.load"));
         setProducts([]);
         setFilteredProducts([]);
         setAvailableTypes([]);
@@ -106,7 +104,7 @@ export default function AdminProductsPage() {
     };
 
     loadProducts();
-  }, [showError]);
+  }, [showError, t]);
 
   // Filter products
   useEffect(() => {
@@ -147,10 +145,10 @@ export default function AdminProductsPage() {
       setProducts([...products, createdProduct]);
       setCreateDialogOpen(false);
       setNewProduct({ name: "", type: "", isActive: true });
-      showSuccess("Ürün başarıyla oluşturuldu");
+      showSuccess(t("admin.products.success.created"));
     } catch (error) {
       console.error("Error creating product:", error);
-      showError("Ürün oluşturulurken hata oluştu");
+      showError(t("admin.products.error.create"));
     }
   };
 
@@ -168,10 +166,10 @@ export default function AdminProductsPage() {
       setEditDialogOpen(false);
       setSelectedProduct(null);
       setNewProduct({ name: "", type: "", isActive: true });
-      showSuccess("Ürün başarıyla güncellendi");
+      showSuccess(t("admin.products.success.updated"));
     } catch (error) {
       console.error("Error updating product:", error);
-      showError("Ürün güncellenirken hata oluştu");
+      showError(t("admin.products.error.update"));
     }
   };
 
@@ -183,12 +181,13 @@ export default function AdminProductsPage() {
       setProducts(
         products.map((p) => (p.id === product.id ? updatedProduct : p))
       );
-      showSuccess(
-        `Ürün ${updatedProduct.isActive ? "aktif" : "pasif"} yapıldı`
-      );
+      const status = updatedProduct.isActive
+        ? t("admin.products.status.active")
+        : t("admin.products.status.inactive");
+      showSuccess(t("admin.products.success.toggled", { status }));
     } catch (error) {
       console.error("Error toggling product status:", error);
-      showError("Ürün durumu değiştirilirken hata oluştu");
+      showError(t("admin.products.error.toggle"));
     }
   };
 
@@ -196,10 +195,10 @@ export default function AdminProductsPage() {
     try {
       await productsApi.deleteProduct(product.id);
       setProducts(products.filter((p) => p.id !== product.id));
-      showSuccess("Ürün başarıyla silindi");
+      showSuccess(t("admin.products.success.deleted"));
     } catch (error) {
       console.error("Error deleting product:", error);
-      showError("Ürün silinirken hata oluştu");
+      showError(t("admin.products.error.delete"));
     }
   };
 
@@ -220,7 +219,7 @@ export default function AdminProductsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Ürün Yönetimi" />
+        <Header title={t("admin.products.title")} />
 
         {/* Main Content */}
         <Box
@@ -239,7 +238,7 @@ export default function AdminProductsPage() {
                 {/* Search Bar */}
                 <TextField
                   fullWidth
-                  placeholder="Ürün adı veya tipi ile arayın..."
+                  placeholder={t("admin.products.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -267,16 +266,16 @@ export default function AdminProductsPage() {
                 >
                   <FilterList sx={{ color: "text.secondary" }} />
                   <Typography variant="subtitle2" color="text.secondary">
-                    Filtrele:
+                    {t("admin.products.filter.title")}
                   </Typography>
 
                   <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel>Ürün Tipi</InputLabel>
+                    <InputLabel>{t("admin.products.filter.type")}</InputLabel>
                     <Select
                       multiple
                       value={selectedTypes}
                       onChange={handleTypeChange}
-                      label="Ürün Tipi"
+                      label={t("admin.products.filter.type")}
                       renderValue={(selected) => (
                         <Box
                           sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
@@ -315,7 +314,7 @@ export default function AdminProductsPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Filtreleri Temizle
+                      {t("admin.products.filter.clear")}
                     </Button>
                   )}
 
@@ -337,14 +336,16 @@ export default function AdminProductsPage() {
                         },
                       }}
                     >
-                      Yeni Ürün
+                      {t("admin.products.new.button")}
                     </Button>
                   </Box>
                 </Box>
 
                 {/* Results Count */}
                 <Typography variant="body2" color="text.secondary">
-                  {filteredProducts.length} ürün bulundu
+                  {t("admin.products.results.count", {
+                    count: filteredProducts.length,
+                  })}
                 </Typography>
               </Box>
             </CardContent>
@@ -368,10 +369,10 @@ export default function AdminProductsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Ürün bulunamadı
+                    {t("admin.products.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Yeni ürün ekleyerek başlayın
+                    {t("admin.products.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -379,19 +380,21 @@ export default function AdminProductsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Ürün Adı</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Tipi
+                          {t("admin.products.table.name")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.products.table.type")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          Durum
+                          {t("admin.products.table.status")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("admin.products.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -422,7 +425,11 @@ export default function AdminProductsPage() {
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
                             <Chip
-                              label={product.isActive ? "Aktif" : "Pasif"}
+                              label={
+                                product.isActive
+                                  ? t("admin.products.status.active")
+                                  : t("admin.products.status.inactive")
+                              }
                               color={product.isActive ? "success" : "default"}
                               size="small"
                               icon={
@@ -456,7 +463,7 @@ export default function AdminProductsPage() {
                                   },
                                 }}
                               >
-                                Düzenle
+                                {t("admin.products.actions.edit")}
                               </Button>
                               <Button
                                 variant="outlined"
@@ -479,7 +486,9 @@ export default function AdminProductsPage() {
                                   },
                                 }}
                               >
-                                {product.isActive ? "Pasif Yap" : "Aktif Yap"}
+                                {product.isActive
+                                  ? t("admin.products.actions.makeInactive")
+                                  : t("admin.products.actions.makeActive")}
                               </Button>
                               <Button
                                 variant="outlined"
@@ -495,7 +504,7 @@ export default function AdminProductsPage() {
                                   },
                                 }}
                               >
-                                Sil
+                                {t("admin.products.actions.delete")}
                               </Button>
                             </Box>
                           </TableCell>
@@ -517,7 +526,7 @@ export default function AdminProductsPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Yeni Ürün Ekle
+                {t("admin.products.dialog.create.title")}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -526,21 +535,21 @@ export default function AdminProductsPage() {
               >
                 <TextField
                   fullWidth
-                  label="Ürün Adı"
+                  label={t("admin.products.dialog.name.label")}
                   value={newProduct.name}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
-                  placeholder="Örn: Küçük Boy Karton Kutu"
+                  placeholder={t("admin.products.dialog.name.placeholder")}
                 />
                 <TextField
                   fullWidth
-                  label="Ürün Tipi"
+                  label={t("admin.products.dialog.type.label")}
                   value={newProduct.type}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, type: e.target.value })
                   }
-                  placeholder="Örn: Karton Kutu, Plastik Ambalaj"
+                  placeholder={t("admin.products.dialog.type.placeholder")}
                 />
                 <FormControlLabel
                   control={
@@ -554,18 +563,20 @@ export default function AdminProductsPage() {
                       }
                     />
                   }
-                  label="Aktif"
+                  label={t("admin.products.dialog.active.label")}
                 />
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setCreateDialogOpen(false)}>İptal</Button>
+              <Button onClick={() => setCreateDialogOpen(false)}>
+                {t("admin.products.dialog.cancel")}
+              </Button>
               <Button
                 onClick={handleCreateProduct}
                 variant="contained"
                 disabled={!newProduct.name || !newProduct.type}
               >
-                Oluştur
+                {t("admin.products.dialog.create")}
               </Button>
             </DialogActions>
           </Dialog>
@@ -579,7 +590,7 @@ export default function AdminProductsPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Ürün Düzenle
+                {t("admin.products.dialog.edit.title")}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -588,7 +599,7 @@ export default function AdminProductsPage() {
               >
                 <TextField
                   fullWidth
-                  label="Ürün Adı"
+                  label={t("admin.products.dialog.name.label")}
                   value={newProduct.name}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, name: e.target.value })
@@ -596,12 +607,12 @@ export default function AdminProductsPage() {
                 />
                 <TextField
                   fullWidth
-                  label="Ürün Tipi"
+                  label={t("admin.products.dialog.type.label")}
                   value={newProduct.type}
                   onChange={(e) =>
                     setNewProduct({ ...newProduct, type: e.target.value })
                   }
-                  placeholder="Örn: Karton Kutu, Plastik Ambalaj"
+                  placeholder={t("admin.products.dialog.type.placeholder")}
                 />
                 <FormControlLabel
                   control={
@@ -615,18 +626,20 @@ export default function AdminProductsPage() {
                       }
                     />
                   }
-                  label="Aktif"
+                  label={t("admin.products.dialog.active.label")}
                 />
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setEditDialogOpen(false)}>İptal</Button>
+              <Button onClick={() => setEditDialogOpen(false)}>
+                {t("admin.products.dialog.cancel")}
+              </Button>
               <Button
                 onClick={handleUpdateProduct}
                 variant="contained"
                 disabled={!newProduct.name || !newProduct.type}
               >
-                Güncelle
+                {t("admin.products.dialog.update")}
               </Button>
             </DialogActions>
           </Dialog>

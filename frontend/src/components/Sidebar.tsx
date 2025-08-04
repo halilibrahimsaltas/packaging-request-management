@@ -69,17 +69,17 @@ export default function Sidebar({ open = true, onToggle }: SidebarProps) {
   const roleInfo = {
     [UserRole.ADMIN]: {
       icon: <Business />,
-      text: "Yönetici",
+      text: t("components.sidebar.role.admin"),
       color: "#ff6b6b",
     },
     [UserRole.SUPPLIER]: {
       icon: <Factory />,
-      text: "Tedarikçi",
+      text: t("components.sidebar.role.supplier"),
       color: "#4ecdc4",
     },
     [UserRole.CUSTOMER]: {
       icon: <Person />,
-      text: "Müşteri",
+      text: t("components.sidebar.role.customer"),
       color: "#45b7d1",
     },
   };

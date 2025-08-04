@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { AuthGuard } from "@/components/AuthGuard";
 import { UserRole } from "@/types/role.type";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CustomerDashboard() {
   const { user } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (user) {
@@ -18,7 +20,7 @@ export default function CustomerDashboard() {
 
   return (
     <AuthGuard requiredRole={UserRole.CUSTOMER}>
-      <div>Yönlendiriliyor...</div>
+      <div>{t("common.redirecting")}</div>
     </AuthGuard>
   );
 }

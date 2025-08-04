@@ -68,7 +68,7 @@ export default function CustomerRequestPage() {
         setOrders(customerOrders);
       } catch (error) {
         console.error("Error loading orders:", error);
-        showError("Talepler yüklenirken hata oluştu");
+        showError(t("customer.requests.error.load"));
         setOrders([]);
       } finally {
         setLoading(false);
@@ -76,7 +76,7 @@ export default function CustomerRequestPage() {
     };
 
     loadOrders();
-  }, [showError]);
+  }, [showError, t]);
 
   const handleViewDetails = async (order: Order) => {
     try {
@@ -105,7 +105,7 @@ export default function CustomerRequestPage() {
 
     try {
       await ordersApi.deleteMyOrder(orderToDelete.id);
-      showSuccess("Talep başarıyla silindi");
+      showSuccess(t("customer.requests.success.deleted"));
 
       // Remove from local state
       setOrders(orders.filter((order) => order.id !== orderToDelete.id));
@@ -113,7 +113,7 @@ export default function CustomerRequestPage() {
       setOrderToDelete(null);
     } catch (error) {
       console.error("Error deleting order:", error);
-      showError("Talep silinirken hata oluştu");
+      showError(t("customer.requests.error.delete"));
     }
   };
 
@@ -145,7 +145,7 @@ export default function CustomerRequestPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Taleplerim" />
+        <Header title={t("customer.requests.title")} />
 
         {/* Main Content */}
         <Box
@@ -164,10 +164,10 @@ export default function CustomerRequestPage() {
                 <Assignment sx={{ fontSize: 32, color: "#667eea" }} />
                 <Box>
                   <Typography variant="h5" fontWeight={600}>
-                    Sipariş Taleplerim
+                    {t("customer.requests.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Oluşturduğunuz talepler ve tedarikçi ilgileri
+                    {t("customer.requests.subtitle")}
                   </Typography>
                 </Box>
               </Box>
@@ -194,10 +194,10 @@ export default function CustomerRequestPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Assignment sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Henüz talep oluşturmadınız
+                    {t("customer.requests.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Ürün kataloğundan sipariş oluşturarak başlayın
+                    {t("customer.requests.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -205,18 +205,22 @@ export default function CustomerRequestPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Talep No</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Tarih</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Sayısı
+                          {t("customer.requests.table.id")}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Toplam Adet
+                          {t("customer.requests.table.date")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("customer.requests.table.items")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("customer.requests.table.totalQuantity")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("customer.requests.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -250,12 +254,12 @@ export default function CustomerRequestPage() {
                             </TableCell>
                             <TableCell>
                               <Typography variant="body2">
-                                {order.items.length} çeşit
+                                {order.items.length} {t("common.types")}
                               </Typography>
                             </TableCell>
                             <TableCell>
                               <Typography variant="body2" fontWeight={500}>
-                                {totalQuantity} adet
+                                {totalQuantity} {t("common.quantity")}
                               </Typography>
                             </TableCell>
                             <TableCell sx={{ textAlign: "center" }}>
@@ -281,7 +285,7 @@ export default function CustomerRequestPage() {
                                     },
                                   }}
                                 >
-                                  Detaylar
+                                  {t("customer.requests.actions.view")}
                                 </Button>
                                 <Button
                                   variant="outlined"
@@ -298,7 +302,7 @@ export default function CustomerRequestPage() {
                                     },
                                   }}
                                 >
-                                  Sil
+                                  {t("customer.requests.actions.delete")}
                                 </Button>
                               </Box>
                             </TableCell>
@@ -321,7 +325,9 @@ export default function CustomerRequestPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Talep Detayları - #{selectedOrder?.id}
+                {t("customer.requests.dialog.details.title", {
+                  id: selectedOrder?.id,
+                })}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -334,12 +340,12 @@ export default function CustomerRequestPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Talep Bilgileri
+                      {t("customer.requests.dialog.details.info")}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 4, mb: 2 }}>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Talep Tarihi
+                          {t("customer.requests.dialog.details.date")}
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedOrder.createdAt)}
@@ -355,7 +361,7 @@ export default function CustomerRequestPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Sipariş Detayları
+                      {t("customer.requests.dialog.details.items")}
                     </Typography>
                     <List dense>
                       {selectedOrder.items.map((item) => (
@@ -385,7 +391,9 @@ export default function CustomerRequestPage() {
                                 />
                               </Box>
                             }
-                            secondary={`${item.quantity} adet`}
+                            secondary={`${item.quantity} ${t(
+                              "common.quantity"
+                            )}`}
                           />
                         </ListItem>
                       ))}
@@ -401,11 +409,11 @@ export default function CustomerRequestPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Tedarikçi İlgileri
+                      {t("customer.requests.dialog.details.suppliers")}
                     </Typography>
                     {selectedOrder.supplierInterests.length === 0 ? (
                       <Typography variant="body2" color="text.secondary">
-                        Henüz ilgilenen tedarikçi bulunmuyor
+                        {t("customer.requests.dialog.details.noSuppliers")}
                       </Typography>
                     ) : (
                       <List dense>
@@ -426,8 +434,8 @@ export default function CustomerRequestPage() {
                                   <Chip
                                     label={
                                       interest.isInterested
-                                        ? "İlgileniyor"
-                                        : "İlgilenmiyor"
+                                        ? t("common.interested")
+                                        : t("common.notInterested")
                                     }
                                     color={
                                       interest.isInterested
@@ -465,7 +473,9 @@ export default function CustomerRequestPage() {
               )}
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setDetailDialogOpen(false)}>Kapat</Button>
+              <Button onClick={() => setDetailDialogOpen(false)}>
+                {t("customer.requests.dialog.details.close")}
+              </Button>
             </DialogActions>
           </Dialog>
 
@@ -478,41 +488,46 @@ export default function CustomerRequestPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Talep Silme Onayı
+                {t("customer.requests.dialog.delete.title")}
               </Typography>
             </DialogTitle>
             <DialogContent>
               <Box sx={{ mt: 1 }}>
                 <Typography variant="body1" gutterBottom>
-                  Bu talebi silmek istediğinizden emin misiniz?
+                  {t("customer.requests.dialog.delete.message")}
                 </Typography>
                 {orderToDelete && (
                   <Box
                     sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}
                   >
                     <Typography variant="subtitle2" fontWeight={600}>
-                      Talep #{orderToDelete.id}
+                      {t("customer.requests.dialog.details.title", {
+                        id: orderToDelete.id,
+                      })}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {orderToDelete.items.length} çeşit ürün, toplam{" "}
+                      {orderToDelete.items.length} {t("common.types")}{" "}
+                      {t("common.items")}, {t("common.total")}{" "}
                       {orderToDelete.items.reduce(
                         (sum, item) => sum + item.quantity,
                         0
                       )}{" "}
-                      adet
+                      {t("common.quantity")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Tarih: {formatDate(orderToDelete.createdAt)}
+                      {t("common.date")}: {formatDate(orderToDelete.createdAt)}
                     </Typography>
                   </Box>
                 )}
                 <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-                  Bu işlem geri alınamaz!
+                  {t("customer.requests.dialog.delete.warning")}
                 </Typography>
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setDeleteDialogOpen(false)}>İptal</Button>
+              <Button onClick={() => setDeleteDialogOpen(false)}>
+                {t("common.cancel")}
+              </Button>
               <Button
                 onClick={confirmDeleteOrder}
                 variant="contained"
@@ -523,7 +538,7 @@ export default function CustomerRequestPage() {
                   },
                 }}
               >
-                Sil
+                {t("customer.requests.dialog.delete.confirm")}
               </Button>
             </DialogActions>
           </Dialog>

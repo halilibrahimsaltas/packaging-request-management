@@ -66,7 +66,7 @@ export default function AdminRequestsPage() {
         setOrders(allOrders);
       } catch (error) {
         console.error("Error loading orders:", error);
-        showError("Talepler yüklenirken hata oluştu");
+        showError(t("admin.requests.error.load"));
         setOrders([]);
       } finally {
         setLoading(false);
@@ -74,7 +74,7 @@ export default function AdminRequestsPage() {
     };
 
     loadOrders();
-  }, [showError]);
+  }, [showError, t]);
 
   const handleViewDetails = async (order: Order) => {
     try {
@@ -130,7 +130,7 @@ export default function AdminRequestsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Tüm Talepler" />
+        <Header title={t("admin.requests.title")} />
 
         {/* Main Content */}
         <Box
@@ -149,10 +149,10 @@ export default function AdminRequestsPage() {
                 <Assignment sx={{ fontSize: 32, color: "#667eea" }} />
                 <Box>
                   <Typography variant="h5" fontWeight={600}>
-                    Tüm Sipariş Talepleri
+                    {t("admin.requests.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Tüm müşterilerin talepleri ve tedarikçi ilgileri
+                    {t("admin.requests.subtitle")}
                   </Typography>
                 </Box>
               </Box>
@@ -178,10 +178,10 @@ export default function AdminRequestsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Assignment sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Henüz talep bulunmuyor
+                    {t("admin.requests.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Müşteriler talep oluşturduğunda burada görünecek
+                    {t("admin.requests.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -189,16 +189,22 @@ export default function AdminRequestsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Müşteri</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Ürünler</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Toplam Miktar
+                          {t("admin.requests.table.customer")}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Tarih</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.requests.table.products")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.requests.table.totalQuantity")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.requests.table.date")}
+                        </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("admin.requests.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -288,13 +294,13 @@ export default function AdminRequestsPage() {
                             </TableCell>
                             <TableCell>
                               <Typography variant="body2" fontWeight={500}>
-                                {totalQuantity} adet
+                                {totalQuantity} {t("common.quantity")}
                               </Typography>
                               <Typography
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                {order.items.length} çeşit
+                                {order.items.length} {t("common.types")}
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -321,7 +327,7 @@ export default function AdminRequestsPage() {
                                   },
                                 }}
                               >
-                                Detayları Gör
+                                {t("admin.requests.actions.view")}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -343,7 +349,9 @@ export default function AdminRequestsPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Talep Detayları - #{selectedOrder?.id}
+                {t("admin.requests.dialog.details.title", {
+                  id: selectedOrder?.id,
+                })}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -356,14 +364,14 @@ export default function AdminRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Talep Bilgileri
+                      {t("admin.requests.dialog.details.info")}
                     </Typography>
                     <Box
                       sx={{ display: "flex", gap: 4, mb: 2, flexWrap: "wrap" }}
                     >
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Müşteri
+                          {t("admin.requests.dialog.details.customer")}
                         </Typography>
                         <Box
                           sx={{
@@ -389,7 +397,7 @@ export default function AdminRequestsPage() {
                       </Box>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Talep Tarihi
+                          {t("admin.requests.dialog.details.date")}
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedOrder.createdAt)}
@@ -405,7 +413,7 @@ export default function AdminRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Sipariş Detayları
+                      {t("admin.requests.dialog.details.items")}
                     </Typography>
                     <List dense>
                       {selectedOrder.items.map((item) => (
@@ -435,7 +443,9 @@ export default function AdminRequestsPage() {
                                 />
                               </Box>
                             }
-                            secondary={`${item.quantity} adet`}
+                            secondary={`${item.quantity} ${t(
+                              "common.quantity"
+                            )}`}
                           />
                         </ListItem>
                       ))}
@@ -451,11 +461,11 @@ export default function AdminRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Tedarikçi İlgileri
+                      {t("admin.requests.dialog.details.suppliers")}
                     </Typography>
                     {selectedOrder.supplierInterests.length === 0 ? (
                       <Typography variant="body2" color="text.secondary">
-                        Henüz ilgilenen tedarikçi bulunmuyor
+                        {t("admin.requests.dialog.details.noSuppliers")}
                       </Typography>
                     ) : (
                       <List dense>
@@ -476,8 +486,8 @@ export default function AdminRequestsPage() {
                                   <Chip
                                     label={
                                       interest.isInterested
-                                        ? "İlgileniyor"
-                                        : "İlgilenmiyor"
+                                        ? t("common.interested")
+                                        : t("common.notInterested")
                                     }
                                     color={
                                       interest.isInterested
@@ -515,7 +525,9 @@ export default function AdminRequestsPage() {
               )}
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setDetailDialogOpen(false)}>Kapat</Button>
+              <Button onClick={() => setDetailDialogOpen(false)}>
+                {t("admin.requests.dialog.details.close")}
+              </Button>
             </DialogActions>
           </Dialog>
         </Box>

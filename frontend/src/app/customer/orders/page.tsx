@@ -53,26 +53,26 @@ export default function CustomerOrdersPage() {
   const handleQuantityChange = (productId: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeFromCart(productId);
-      showInfo("Ürün sepetten kaldırıldı");
+      showInfo(t("customer.cart.success.removed"));
     } else {
       updateQuantity(productId, newQuantity);
-      showInfo("Miktar güncellendi");
+      showInfo(t("customer.cart.success.updated"));
     }
   };
 
   const handleRemoveItem = (productId: number) => {
     removeFromCart(productId);
-    showInfo("Ürün sepetten kaldırıldı");
+    showInfo(t("customer.cart.success.removed"));
   };
 
   const handleClearCart = () => {
     clearCart();
-    showInfo("Sepet temizlendi");
+    showInfo(t("customer.cart.success.cleared"));
   };
 
   const handleCompleteOrder = () => {
     if (items.length === 0) {
-      showError("Sepetiniz boş!");
+      showError(t("customer.cart.error.empty"));
       return;
     }
     setConfirmDialogOpen(true);
@@ -85,7 +85,7 @@ export default function CustomerOrdersPage() {
   const confirmOrder = async () => {
     try {
       if (!user?.id) {
-        showError("Kullanıcı bilgisi bulunamadı!");
+        showError(t("customer.cart.error.userNotFound"));
         return;
       }
 
@@ -103,14 +103,14 @@ export default function CustomerOrdersPage() {
       // Backend API çağrısı
       const response = await ordersApi.createOrder(orderData);
 
-      showSuccess("Siparişiniz başarıyla oluşturuldu!");
+      showSuccess(t("customer.cart.success.orderCreated"));
       clearCart();
       setConfirmDialogOpen(false);
 
       // Talep sayfasına yönlendir
       router.push("/customer/request");
     } catch (error) {
-      showError("Sipariş oluşturulurken hata oluştu!");
+      showError(t("customer.cart.error.createOrder"));
       console.error("Order creation error:", error);
     }
   };
@@ -133,7 +133,7 @@ export default function CustomerOrdersPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Siparişlerim" />
+        <Header title={t("customer.cart.title")} />
 
         {/* Main Content */}
         <Box
@@ -159,10 +159,10 @@ export default function CustomerOrdersPage() {
                   <ShoppingCart sx={{ fontSize: 32, color: "#667eea" }} />
                   <Box>
                     <Typography variant="h5" fontWeight={600}>
-                      Sepetim
+                      {t("customer.cart.title")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {items.length} ürün çeşidi
+                      {t("customer.cart.subtitle", { count: items.length })}
                     </Typography>
                   </Box>
                 </Box>
@@ -181,7 +181,7 @@ export default function CustomerOrdersPage() {
                         },
                       }}
                     >
-                      Sepeti Temizle
+                      {t("customer.cart.actions.clearCart")}
                     </Button>
                     <Button
                       variant="contained"
@@ -196,7 +196,7 @@ export default function CustomerOrdersPage() {
                         },
                       }}
                     >
-                      Siparişi Tamamla
+                      {t("customer.cart.actions.completeOrder")}
                     </Button>
                   </Box>
                 ) : (
@@ -213,7 +213,7 @@ export default function CustomerOrdersPage() {
                       },
                     }}
                   >
-                    Ürün Ekle
+                    {t("customer.cart.actions.addProducts")}
                   </Button>
                 )}
               </Box>
@@ -226,14 +226,14 @@ export default function CustomerOrdersPage() {
               <CardContent sx={{ p: 4, textAlign: "center" }}>
                 <ShoppingCart sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                 <Typography variant="h6" color="text.secondary" gutterBottom>
-                  Sepetiniz boş
+                  {t("customer.cart.empty.title")}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ mb: 3 }}
                 >
-                  Ürün kataloğundan ürün ekleyerek sipariş oluşturabilirsiniz
+                  {t("customer.cart.empty.subtitle")}
                 </Typography>
                 <Button
                   variant="contained"
@@ -248,7 +248,7 @@ export default function CustomerOrdersPage() {
                     },
                   }}
                 >
-                  Ürün Kataloğuna Git
+                  {t("customer.cart.empty.addProducts")}
                 </Button>
               </CardContent>
             </Card>
@@ -291,7 +291,7 @@ export default function CustomerOrdersPage() {
                             }}
                           >
                             <Typography variant="body2" color="text.secondary">
-                              Miktar:
+                              {t("customer.cart.quantity.label")}
                             </Typography>
                             <Box
                               sx={{
@@ -386,13 +386,13 @@ export default function CustomerOrdersPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Siparişi Onayla
+                {t("customer.cart.dialog.confirm.title")}
               </Typography>
             </DialogTitle>
             <DialogContent>
               <Box sx={{ mt: 1 }}>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  Aşağıdaki ürünler için sipariş oluşturulacak:
+                  {t("customer.cart.dialog.confirm.message")}
                 </Alert>
 
                 <List dense>
@@ -400,7 +400,7 @@ export default function CustomerOrdersPage() {
                     <ListItem key={item.productId} sx={{ px: 0 }}>
                       <ListItemText
                         primary={item.name}
-                        secondary={`${item.quantity} adet`}
+                        secondary={`${item.quantity} ${t("common.quantity")}`}
                       />
                     </ListItem>
                   ))}
@@ -408,12 +408,14 @@ export default function CustomerOrdersPage() {
 
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="body2" color="text.secondary">
-                  Toplam: {getTotalItems()} ürün
+                  {t("customer.cart.total", { count: getTotalItems() })}
                 </Typography>
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setConfirmDialogOpen(false)}>İptal</Button>
+              <Button onClick={() => setConfirmDialogOpen(false)}>
+                {t("customer.cart.dialog.confirm.cancel")}
+              </Button>
               <Button
                 onClick={confirmOrder}
                 variant="contained"
@@ -426,7 +428,7 @@ export default function CustomerOrdersPage() {
                   },
                 }}
               >
-                Siparişi Onayla
+                {t("customer.cart.dialog.confirm.confirm")}
               </Button>
             </DialogActions>
           </Dialog>

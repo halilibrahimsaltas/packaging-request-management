@@ -67,7 +67,7 @@ export default function SupplierProductsPage() {
         setAvailableTypes(types);
       } catch (error) {
         console.error("Error loading products:", error);
-        showError("Ürünler yüklenirken hata oluştu");
+        showError(t("supplier.products.error.load"));
         setProducts([]);
         setFilteredProducts([]);
         setAvailableTypes([]);
@@ -77,7 +77,7 @@ export default function SupplierProductsPage() {
     };
 
     loadProducts();
-  }, [showError]);
+  }, [showError, t]);
 
   // Filter products
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function SupplierProductsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Ürün Kataloğu" />
+        <Header title={t("supplier.products.title")} />
 
         {/* Main Content */}
         <Box
@@ -149,7 +149,7 @@ export default function SupplierProductsPage() {
                 {/* Search Bar */}
                 <TextField
                   fullWidth
-                  placeholder="Ürün adı veya tipi ile arayın..."
+                  placeholder={t("supplier.products.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -177,16 +177,18 @@ export default function SupplierProductsPage() {
                 >
                   <FilterList sx={{ color: "text.secondary" }} />
                   <Typography variant="subtitle2" color="text.secondary">
-                    Filtrele:
+                    {t("supplier.products.filter.title")}
                   </Typography>
 
                   <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel>Ürün Tipi</InputLabel>
+                    <InputLabel>
+                      {t("supplier.products.filter.type")}
+                    </InputLabel>
                     <Select
                       multiple
                       value={selectedTypes}
                       onChange={handleTypeChange}
-                      label="Ürün Tipi"
+                      label={t("supplier.products.filter.type")}
                       renderValue={(selected) => (
                         <Box
                           sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
@@ -227,14 +229,16 @@ export default function SupplierProductsPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Filtreleri Temizle
+                      {t("supplier.products.filter.clear")}
                     </Button>
                   )}
                 </Box>
 
                 {/* Results Count */}
                 <Typography variant="body2" color="text.secondary">
-                  {filteredProducts.length} ürün bulundu
+                  {t("supplier.products.results.count", {
+                    count: filteredProducts.length,
+                  })}
                 </Typography>
               </Box>
             </CardContent>
@@ -258,10 +262,10 @@ export default function SupplierProductsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Ürün bulunamadı
+                    {t("supplier.products.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Arama kriterlerinizi değiştirmeyi deneyin
+                    {t("supplier.products.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -269,14 +273,16 @@ export default function SupplierProductsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Ürün Adı</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Tipi
+                          {t("supplier.products.table.name")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.products.table.type")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          Durum
+                          {t("supplier.products.table.status")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -308,7 +314,11 @@ export default function SupplierProductsPage() {
                           </TableCell>
                           <TableCell sx={{ textAlign: "center" }}>
                             <Chip
-                              label={product.isActive ? "Aktif" : "Pasif"}
+                              label={
+                                product.isActive
+                                  ? t("supplier.products.status.active")
+                                  : t("supplier.products.status.inactive")
+                              }
                               color={product.isActive ? "success" : "default"}
                               size="small"
                             />

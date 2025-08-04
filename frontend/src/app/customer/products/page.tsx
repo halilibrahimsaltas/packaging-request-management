@@ -83,7 +83,7 @@ export default function CustomerProductsPage() {
         // Toast mesajını kaldırdık çünkü sürekli gösteriliyor
       } catch (error) {
         console.error("Error loading products:", error);
-        showError("Ürünler yüklenirken hata oluştu");
+        showError(t("customer.products.error.load"));
         setProducts([]);
         setFilteredProducts([]);
         setAvailableTypes([]);
@@ -93,7 +93,7 @@ export default function CustomerProductsPage() {
     };
 
     loadProducts();
-  }, [showError]);
+  }, [showError, t]);
 
   // filter
   useEffect(() => {
@@ -143,7 +143,12 @@ export default function CustomerProductsPage() {
   const handleAddToCart = (product: Product) => {
     const quantity = quantities[product.id] || 1;
     addToCart(product.id, product.name, product.type, quantity);
-    showSuccess(`${product.name} sepete eklendi (${quantity} adet)`);
+    showSuccess(
+      t("customer.products.success.addedToCart", {
+        name: product.name,
+        quantity,
+      })
+    );
 
     // Miktarı sıfırla
     setQuantities((prev) => ({
@@ -173,7 +178,7 @@ export default function CustomerProductsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Ürün Kataloğu" />
+        <Header title={t("customer.products.title")} />
 
         {/* Main Content */}
         <Box
@@ -192,7 +197,7 @@ export default function CustomerProductsPage() {
                 {/* Search Bar */}
                 <TextField
                   fullWidth
-                  placeholder="Ürün adı veya tipi ile arayın..."
+                  placeholder={t("customer.products.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -220,16 +225,18 @@ export default function CustomerProductsPage() {
                 >
                   <FilterList sx={{ color: "text.secondary" }} />
                   <Typography variant="subtitle2" color="text.secondary">
-                    Filtrele:
+                    {t("customer.products.filter.title")}
                   </Typography>
 
                   <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel>Ürün Tipi</InputLabel>
+                    <InputLabel>
+                      {t("customer.products.filter.type")}
+                    </InputLabel>
                     <Select
                       multiple
                       value={selectedTypes}
                       onChange={handleTypeChange}
-                      label="Ürün Tipi"
+                      label={t("customer.products.filter.type")}
                       renderValue={(selected) => (
                         <Box
                           sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
@@ -268,7 +275,7 @@ export default function CustomerProductsPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Filtreleri Temizle
+                      {t("customer.products.filter.clear")}
                     </Button>
                   )}
 
@@ -288,7 +295,9 @@ export default function CustomerProductsPage() {
                           },
                         }}
                       >
-                        Talep Tamamla ({getTotalItems()})
+                        {t("customer.products.actions.completeOrder", {
+                          count: getTotalItems(),
+                        })}
                       </Button>
                     )}
                   </Box>
@@ -296,7 +305,9 @@ export default function CustomerProductsPage() {
 
                 {/* Results Count */}
                 <Typography variant="body2" color="text.secondary">
-                  {filteredProducts.length} ürün bulundu
+                  {t("customer.products.results.count", {
+                    count: filteredProducts.length,
+                  })}
                 </Typography>
               </Box>
             </CardContent>
@@ -320,10 +331,10 @@ export default function CustomerProductsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Inventory sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Ürün bulunamadı
+                    {t("customer.products.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Arama kriterlerinizi değiştirmeyi deneyin
+                    {t("customer.products.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -331,19 +342,21 @@ export default function CustomerProductsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Ürün Adı</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Tipi
+                          {t("customer.products.table.name")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("customer.products.table.type")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          Miktar
+                          {t("customer.products.table.quantity")}
                         </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("customer.products.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -368,7 +381,9 @@ export default function CustomerProductsPage() {
                                   variant="caption"
                                   color="success.main"
                                 >
-                                  Sepette: {cartItem.quantity} adet
+                                  {t("customer.products.inCart", {
+                                    quantity: cartItem.quantity,
+                                  })}
                                 </Typography>
                               )}
                             </TableCell>
@@ -430,7 +445,7 @@ export default function CustomerProductsPage() {
                                     py: 0.5,
                                   }}
                                 >
-                                  Sepete Ekle
+                                  {t("customer.products.actions.addToCart")}
                                 </Button>
                               </Box>
                             </TableCell>

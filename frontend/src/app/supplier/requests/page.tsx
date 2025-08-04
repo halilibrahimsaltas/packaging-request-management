@@ -118,7 +118,7 @@ export default function SupplierRequestsPage() {
         setAvailableTypes(Array.from(types));
       } catch (error) {
         console.error("Error loading orders:", error);
-        showError("Talepler yüklenirken hata oluştu");
+        showError(t("supplier.requests.error.load"));
         setOrders([]);
         setFilteredOrders([]);
         setAvailableTypes([]);
@@ -128,7 +128,7 @@ export default function SupplierRequestsPage() {
     };
 
     loadOrders();
-  }, [showError]);
+  }, [showError, t]);
 
   // Filter orders
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function SupplierRequestsPage() {
       setDetailDialogOpen(true);
     } catch (error) {
       console.error("Error loading order details:", error);
-      showError("Talep detayları yüklenirken hata oluştu");
+      showError(t("supplier.requests.error.loadDetails"));
     }
   };
 
@@ -211,8 +211,8 @@ export default function SupplierRequestsPage() {
       await supplierInterestsApi.toggleInterest(orderId, isInterested, notes);
       showSuccess(
         isInterested
-          ? "Talebe ilgilendiğiniz kaydedildi"
-          : "Talebe ilgilenmediğiniz kaydedildi"
+          ? t("supplier.requests.success.interested")
+          : t("supplier.requests.success.notInterested")
       );
       setDetailDialogOpen(false);
 
@@ -249,7 +249,7 @@ export default function SupplierRequestsPage() {
       loadOrders();
     } catch (error) {
       console.error("Error updating interest:", error);
-      showError("İlgi durumu güncellenirken hata oluştu");
+      showError(t("supplier.requests.error.updateInterest"));
     }
   };
 
@@ -293,7 +293,7 @@ export default function SupplierRequestsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Tedarikçi Talepleri" />
+        <Header title={t("supplier.requests.title")} />
 
         {/* Main Content */}
         <Box
@@ -312,7 +312,7 @@ export default function SupplierRequestsPage() {
                 {/* Search Bar */}
                 <TextField
                   fullWidth
-                  placeholder="Müşteri adı veya ürün adı ile arayın..."
+                  placeholder={t("supplier.requests.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -340,16 +340,18 @@ export default function SupplierRequestsPage() {
                 >
                   <FilterList sx={{ color: "text.secondary" }} />
                   <Typography variant="subtitle2" color="text.secondary">
-                    Filtrele:
+                    {t("supplier.requests.filter.title")}
                   </Typography>
 
                   <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel>Ürün Tipi</InputLabel>
+                    <InputLabel>
+                      {t("supplier.requests.filter.type")}
+                    </InputLabel>
                     <Select
                       multiple
                       value={selectedTypes}
                       onChange={handleTypeChange}
-                      label="Ürün Tipi"
+                      label={t("supplier.requests.filter.type")}
                       renderValue={(selected) => (
                         <Box
                           sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
@@ -390,14 +392,16 @@ export default function SupplierRequestsPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Filtreleri Temizle
+                      {t("supplier.requests.filter.clear")}
                     </Button>
                   )}
                 </Box>
 
                 {/* Results Count */}
                 <Typography variant="body2" color="text.secondary">
-                  {filteredOrders.length} talep bulundu
+                  {t("supplier.requests.results.count", {
+                    count: filteredOrders.length,
+                  })}
                 </Typography>
               </Box>
             </CardContent>
@@ -422,10 +426,10 @@ export default function SupplierRequestsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Assignment sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Talep bulunamadı
+                    {t("supplier.requests.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Arama kriterlerinizi değiştirmeyi deneyin
+                    {t("supplier.requests.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -433,16 +437,22 @@ export default function SupplierRequestsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Müşteri</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Ürünler</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Toplam Miktar
+                          {t("supplier.requests.table.customer")}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Tarih</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.requests.table.products")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.requests.table.totalQuantity")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.requests.table.date")}
+                        </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("supplier.requests.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -532,13 +542,13 @@ export default function SupplierRequestsPage() {
                             </TableCell>
                             <TableCell>
                               <Typography variant="body2" fontWeight={500}>
-                                {totalQuantity} adet
+                                {totalQuantity} {t("common.quantity")}
                               </Typography>
                               <Typography
                                 variant="caption"
                                 color="text.secondary"
                               >
-                                {order.items.length} çeşit
+                                {order.items.length} {t("common.types")}
                               </Typography>
                             </TableCell>
                             <TableCell>
@@ -565,7 +575,7 @@ export default function SupplierRequestsPage() {
                                   },
                                 }}
                               >
-                                Detayları Gör
+                                {t("supplier.requests.actions.viewDetails")}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -587,7 +597,9 @@ export default function SupplierRequestsPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Talep Detayları - #{selectedOrder?.id}
+                {t("supplier.requests.dialog.details.title", {
+                  id: selectedOrder?.id,
+                })}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -600,14 +612,14 @@ export default function SupplierRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Talep Bilgileri
+                      {t("supplier.requests.dialog.details.info")}
                     </Typography>
                     <Box
                       sx={{ display: "flex", gap: 4, mb: 2, flexWrap: "wrap" }}
                     >
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Müşteri
+                          {t("supplier.requests.dialog.details.customer")}
                         </Typography>
                         <Box
                           sx={{
@@ -633,7 +645,7 @@ export default function SupplierRequestsPage() {
                       </Box>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Talep Tarihi
+                          {t("supplier.requests.dialog.details.date")}
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedOrder.createdAt)}
@@ -649,7 +661,7 @@ export default function SupplierRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Sipariş Detayları
+                      {t("supplier.requests.dialog.details.items")}
                     </Typography>
                     <List dense>
                       {selectedOrder.items.map((item) => (
@@ -679,7 +691,9 @@ export default function SupplierRequestsPage() {
                                 />
                               </Box>
                             }
-                            secondary={`${item.quantity} adet`}
+                            secondary={`${item.quantity} ${t(
+                              "common.quantity"
+                            )}`}
                           />
                         </ListItem>
                       ))}
@@ -695,14 +709,16 @@ export default function SupplierRequestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Bu Talebe İlginiz
+                      {t("supplier.requests.dialog.details.interest.title")}
                     </Typography>
                     <Typography
                       variant="body2"
                       color="text.secondary"
                       sx={{ mb: 2 }}
                     >
-                      Bu talebe ilgilenip ilgilenmediğinizi belirtin
+                      {t(
+                        "supplier.requests.dialog.details.interest.description"
+                      )}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 2 }}>
                       <Button
@@ -714,7 +730,9 @@ export default function SupplierRequestsPage() {
                           "&:hover": { bgcolor: "#45a049" },
                         }}
                       >
-                        İlgileniyorum
+                        {t(
+                          "supplier.requests.dialog.details.interest.interested"
+                        )}
                       </Button>
                       <Button
                         variant="outlined"
@@ -729,7 +747,9 @@ export default function SupplierRequestsPage() {
                           },
                         }}
                       >
-                        İlgilenmiyorum
+                        {t(
+                          "supplier.requests.dialog.details.interest.notInterested"
+                        )}
                       </Button>
                     </Box>
                   </Box>
@@ -737,7 +757,9 @@ export default function SupplierRequestsPage() {
               )}
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setDetailDialogOpen(false)}>Kapat</Button>
+              <Button onClick={() => setDetailDialogOpen(false)}>
+                {t("supplier.requests.dialog.details.close")}
+              </Button>
             </DialogActions>
           </Dialog>
         </Box>

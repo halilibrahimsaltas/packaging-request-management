@@ -97,7 +97,7 @@ export default function SupplierInterestsPage() {
         setInterests(transformedInterests);
       } catch (error) {
         console.error("Error loading supplier interests:", error);
-        showError("İlgiler yüklenirken hata oluştu");
+        showError(t("supplier.interests.error.load"));
         setInterests([]);
       } finally {
         setLoading(false);
@@ -105,13 +105,13 @@ export default function SupplierInterestsPage() {
     };
 
     loadInterests();
-  }, [user?.id, showError]);
+  }, [user?.id, showError, t]);
 
   const handleViewDetails = async (interest: SupplierInterest) => {
     try {
       // Check if orderId is valid
       if (!interest.orderId || isNaN(interest.orderId)) {
-        showError("Geçersiz talep ID'si");
+        showError(t("supplier.interests.error.invalidOrderId"));
         return;
       }
 
@@ -148,7 +148,7 @@ export default function SupplierInterestsPage() {
       setDetailDialogOpen(true);
     } catch (error) {
       console.error("Error loading order details:", error);
-      showError("Talep detayları yüklenirken hata oluştu");
+      showError(t("supplier.interests.error.loadDetails"));
     }
   };
 
@@ -193,7 +193,7 @@ export default function SupplierInterestsPage() {
         (sum: number, item: any) => sum + item.quantity,
         0
       );
-      return `${totalQuantity} adet`;
+      return `${totalQuantity} ${t("common.quantity")}`;
     }
 
     // Get from selected order (if details are loaded)
@@ -202,10 +202,10 @@ export default function SupplierInterestsPage() {
         (sum, item) => sum + item.quantity,
         0
       );
-      return `${totalQuantity} adet`;
+      return `${totalQuantity} ${t("common.quantity")}`;
     }
 
-    return "0 adet";
+    return `0 ${t("common.quantity")}`;
   };
 
   return (
@@ -215,7 +215,7 @@ export default function SupplierInterestsPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Tedarikçi İlgileri" />
+        <Header title={t("supplier.interests.title")} />
 
         {/* Main Content */}
         <Box
@@ -246,10 +246,10 @@ export default function SupplierInterestsPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <Assignment sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    İlgi kaydı bulunamadı
+                    {t("supplier.interests.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Henüz herhangi bir talebe ilgi göstermediniz
+                    {t("supplier.interests.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -257,18 +257,22 @@ export default function SupplierInterestsPage() {
                   <Table>
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                        <TableCell sx={{ fontWeight: 600 }}>Talep ID</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Türleri
+                          {t("supplier.interests.table.id")}
                         </TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Ürün Miktarı
+                          {t("supplier.interests.table.productTypes")}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Tarih</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.interests.table.quantity")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("supplier.interests.table.date")}
+                        </TableCell>
                         <TableCell
                           sx={{ fontWeight: 600, textAlign: "center" }}
                         >
-                          İşlemler
+                          {t("supplier.interests.table.actions")}
                         </TableCell>
                       </TableRow>
                     </TableHead>
@@ -349,7 +353,7 @@ export default function SupplierInterestsPage() {
                                   },
                                 }}
                               >
-                                Detayları Gör
+                                {t("supplier.interests.actions.viewDetails")}
                               </Button>
                             </Box>
                           </TableCell>
@@ -371,7 +375,9 @@ export default function SupplierInterestsPage() {
           >
             <DialogTitle>
               <Typography variant="h6" fontWeight={600} component="div">
-                Talep Detayları - #{selectedOrder?.id}
+                {t("supplier.interests.dialog.details.title", {
+                  id: selectedOrder?.id,
+                })}
               </Typography>
             </DialogTitle>
             <DialogContent>
@@ -384,14 +390,14 @@ export default function SupplierInterestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Talep Bilgileri
+                      {t("supplier.interests.dialog.details.info")}
                     </Typography>
                     <Box
                       sx={{ display: "flex", gap: 4, mb: 2, flexWrap: "wrap" }}
                     >
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Müşteri
+                          {t("supplier.interests.dialog.details.customer")}
                         </Typography>
                         <Box
                           sx={{
@@ -417,7 +423,7 @@ export default function SupplierInterestsPage() {
                       </Box>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
-                          Talep Tarihi
+                          {t("supplier.interests.dialog.details.date")}
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedOrder.createdAt)}
@@ -433,7 +439,7 @@ export default function SupplierInterestsPage() {
                       fontWeight={600}
                       gutterBottom
                     >
-                      Sipariş Detayları
+                      {t("supplier.interests.dialog.details.items")}
                     </Typography>
                     <List dense>
                       {selectedOrder.items.map((item) => (
@@ -461,7 +467,9 @@ export default function SupplierInterestsPage() {
                                 />
                               </Box>
                             }
-                            secondary={`${item.quantity} adet`}
+                            secondary={`${item.quantity} ${t(
+                              "common.quantity"
+                            )}`}
                           />
                         </ListItem>
                       ))}
@@ -471,7 +479,9 @@ export default function SupplierInterestsPage() {
               )}
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
-              <Button onClick={() => setDetailDialogOpen(false)}>Kapat</Button>
+              <Button onClick={() => setDetailDialogOpen(false)}>
+                {t("supplier.interests.dialog.details.close")}
+              </Button>
             </DialogActions>
           </Dialog>
         </Box>

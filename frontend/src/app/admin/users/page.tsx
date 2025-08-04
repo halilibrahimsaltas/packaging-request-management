@@ -70,7 +70,7 @@ export default function AdminUsersPage() {
         setFilteredUsers(allUsers);
       } catch (error) {
         console.error("Error loading users:", error);
-        showError("Kullanıcılar yüklenirken hata oluştu");
+        showError(t("admin.users.error.load"));
         setUsers([]);
         setFilteredUsers([]);
       } finally {
@@ -79,7 +79,7 @@ export default function AdminUsersPage() {
     };
 
     loadUsers();
-  }, [showError]);
+  }, [showError, t]);
 
   // Filter users
   useEffect(() => {
@@ -128,11 +128,11 @@ export default function AdminUsersPage() {
   const getRoleText = (role: string) => {
     switch (role) {
       case "ADMIN":
-        return "Yönetici";
+        return t("admin.users.role.admin");
       case "CUSTOMER":
-        return "Müşteri";
+        return t("admin.users.role.customer");
       case "SUPPLIER":
-        return "Tedarikçi";
+        return t("admin.users.role.supplier");
       default:
         return role;
     }
@@ -154,7 +154,7 @@ export default function AdminUsersPage() {
         <Sidebar />
 
         {/* Header */}
-        <Header title="Kullanıcı Yönetimi" />
+        <Header title={t("admin.users.title")} />
 
         {/* Main Content */}
         <Box
@@ -173,7 +173,7 @@ export default function AdminUsersPage() {
                 {/* Search Bar */}
                 <TextField
                   fullWidth
-                  placeholder="Kullanıcı adı veya email ile arayın..."
+                  placeholder={t("admin.users.search.placeholder")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   InputProps={{
@@ -201,16 +201,16 @@ export default function AdminUsersPage() {
                 >
                   <FilterList sx={{ color: "text.secondary" }} />
                   <Typography variant="subtitle2" color="text.secondary">
-                    Filtrele:
+                    {t("admin.users.filter.title")}
                   </Typography>
 
                   <FormControl sx={{ minWidth: 200 }}>
-                    <InputLabel>Kullanıcı Rolü</InputLabel>
+                    <InputLabel>{t("admin.users.filter.role")}</InputLabel>
                     <Select
                       multiple
                       value={selectedRoles}
                       onChange={handleRoleChange}
-                      label="Kullanıcı Rolü"
+                      label={t("admin.users.filter.role")}
                       renderValue={(selected) => (
                         <Box
                           sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
@@ -231,7 +231,7 @@ export default function AdminUsersPage() {
                     >
                       <MenuItem value="ADMIN">
                         <Chip
-                          label="Yönetici"
+                          label={t("admin.users.role.admin")}
                           size="small"
                           sx={{
                             // backgroundColor removed
@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
                       </MenuItem>
                       <MenuItem value="CUSTOMER">
                         <Chip
-                          label="Müşteri"
+                          label={t("admin.users.role.customer")}
                           size="small"
                           sx={{
                             // backgroundColor removed
@@ -251,7 +251,7 @@ export default function AdminUsersPage() {
                       </MenuItem>
                       <MenuItem value="SUPPLIER">
                         <Chip
-                          label="Tedarikçi"
+                          label={t("admin.users.role.supplier")}
                           size="small"
                           sx={{
                             // backgroundColor removed
@@ -269,14 +269,16 @@ export default function AdminUsersPage() {
                       variant="outlined"
                       size="small"
                     >
-                      Filtreleri Temizle
+                      {t("admin.users.filter.clear")}
                     </Button>
                   )}
                 </Box>
 
                 {/* Results Count */}
                 <Typography variant="body2" color="text.secondary">
-                  {filteredUsers.length} kullanıcı bulundu
+                  {t("admin.users.results.count", {
+                    count: filteredUsers.length,
+                  })}
                 </Typography>
               </Box>
             </CardContent>
@@ -301,10 +303,10 @@ export default function AdminUsersPage() {
                 <Box sx={{ p: 4, textAlign: "center" }}>
                   <People sx={{ fontSize: 64, color: "grey.400", mb: 2 }} />
                   <Typography variant="h6" color="text.secondary" gutterBottom>
-                    Kullanıcı bulunamadı
+                    {t("admin.users.empty.title")}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Arama kriterlerinizi değiştirmeyi deneyin
+                    {t("admin.users.empty.subtitle")}
                   </Typography>
                 </Box>
               ) : (
@@ -313,12 +315,20 @@ export default function AdminUsersPage() {
                     <TableHead>
                       <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
                         <TableCell sx={{ fontWeight: 600 }}>
-                          Kullanıcı
+                          {t("admin.users.table.user")}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Rol</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>İletişim</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Adres</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.users.table.email")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.users.table.role")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.users.table.contact")}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          {t("admin.users.table.address")}
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -406,7 +416,7 @@ export default function AdminUsersPage() {
                                 variant="body2"
                                 color="text.secondary"
                               >
-                                Belirtilmemiş
+                                {t("admin.users.notSpecified")}
                               </Typography>
                             )}
                           </TableCell>
@@ -429,7 +439,7 @@ export default function AdminUsersPage() {
                                 variant="body2"
                                 color="text.secondary"
                               >
-                                Belirtilmemiş
+                                {t("admin.users.notSpecified")}
                               </Typography>
                             )}
                           </TableCell>

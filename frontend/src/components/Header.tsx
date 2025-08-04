@@ -81,13 +81,13 @@ export default function Header({ title, subtitle }: HeaderProps) {
   const getRoleText = () => {
     switch (user?.role) {
       case UserRole.ADMIN:
-        return "Yönetici";
+        return t("components.header.role.admin");
       case UserRole.SUPPLIER:
-        return "Tedarikçi";
+        return t("components.header.role.supplier");
       case UserRole.CUSTOMER:
-        return "Müşteri";
+        return t("components.header.role.customer");
       default:
-        return "Kullanıcı";
+        return t("components.header.role.user");
     }
   };
 
