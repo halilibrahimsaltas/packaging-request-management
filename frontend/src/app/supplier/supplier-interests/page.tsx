@@ -33,7 +33,12 @@ import { useToast } from "@/components/Toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import { Order, SupplierInterest } from "@/types/order.types";
-import { supplierInterestsApi } from "@/lib";
+import {
+  OrderItem,
+  BackendSupplierInterestResponse,
+  BackendOrderDetailResponse,
+} from "@/types/order.types";
+import { ordersApi, supplierInterestsApi } from "@/lib";
 
 export default function SupplierInterestsPage() {
   const { user } = useAuth();
@@ -64,31 +69,24 @@ export default function SupplierInterestsPage() {
 
         // Transform backend data to match frontend structure
         const transformedInterests: SupplierInterest[] = supplierInterests.map(
-          (interest: Record<string, unknown>) => {
+          (interest: any) => {
             console.log("Processing interest:", interest);
 
             // Store order details for use in display functions
             setOrderDetails((prev) => ({
               ...prev,
-              [(interest.order as Record<string, unknown>)?.id as number]:
-                interest.order,
+              [interest.order.id]: interest.order,
             }));
 
             return {
-              id: interest.id as number,
-              orderId:
-                ((interest.order as Record<string, unknown>)?.id as number) ||
-                0,
-              supplierId:
-                ((interest.supplier as Record<string, unknown>)
-                  ?.id as number) || 0,
-              supplierName:
-                ((interest.supplier as Record<string, unknown>)
-                  ?.username as string) || "Unknown Supplier",
-              isInterested: interest.isInterested as boolean,
-              notes: (interest.notes as string) || "",
-              createdAt: interest.createdAt as string,
-              updatedAt: interest.updatedAt as string,
+              id: interest.id,
+              orderId: interest.order.id,
+              supplierId: interest.supplier.id,
+              supplierName: interest.supplier.username,
+              isInterested: interest.isInterested,
+              notes: interest.notes || "",
+              createdAt: interest.createdAt,
+              updatedAt: interest.updatedAt,
             };
           }
         );
@@ -117,23 +115,30 @@ export default function SupplierInterestsPage() {
 
       console.log("Loading order details for orderId:", interest.orderId);
 
-      // Get order details from backend
-      const orderDetails = await supplierInterestsApi.getOrderDetailForSupplier(
-        interest.orderId
-      );
+      const orderDetails =
+        (await supplierInterestsApi.getOrderDetailForSupplier(
+          interest.orderId
+        )) as unknown as BackendOrderDetailResponse;
 
       console.log("Order details received:", orderDetails);
 
-      // Transform backend order data to match frontend structure
+      // The API already returns data in the correct Order format
       const transformedOrder: Order = {
         id: orderDetails.id,
-        customerId: orderDetails.customerId || 0,
-        customerName: orderDetails.customerName || "Unknown Customer",
+        customerId: orderDetails.customer.id,
+        customerName: orderDetails.customer.username,
+
         createdAt: orderDetails.createdAt,
-        items: orderDetails.items || [],
-        supplierInterests: orderDetails.supplierInterests || [],
-        interestedSuppliersCount: orderDetails.interestedSuppliersCount || 0,
-        totalSuppliersCount: orderDetails.totalSuppliersCount || 0,
+        items: orderDetails.items.map((item) => ({
+          id: item.id,
+          productId: item.product.id,
+          productName: item.product.name,
+          productType: item.product.type,
+          quantity: item.quantity,
+        })),
+        supplierInterests: [],
+        interestedSuppliersCount: 0,
+        totalSuppliersCount: 0,
       };
 
       console.log("Transformed order:", transformedOrder);
@@ -160,10 +165,26 @@ export default function SupplierInterestsPage() {
     // Get from backend order details
     const backendOrder = orderDetails[orderId];
     if (backendOrder && backendOrder.items) {
-      const types = [
-        ...new Set(backendOrder.items.map((item: any) => item.product.type)),
-      ];
-      return types.filter((type): type is string => typeof type === "string");
+      // Check if items have nested product structure or direct productType
+      const items = backendOrder.items as Array<Record<string, unknown>>;
+      if (items.length > 0 && items[0] && items[0].product) {
+        // Nested structure: item.product.type
+        const types = [
+          ...new Set(
+            items.map(
+              (item) =>
+                (item.product as Record<string, unknown>)?.type as string
+            )
+          ),
+        ];
+        return types.filter((type): type is string => typeof type === "string");
+      } else {
+        // Direct structure: item.productType
+        const types = [
+          ...new Set(items.map((item) => item.productType as string)),
+        ];
+        return types.filter((type): type is string => typeof type === "string");
+      }
     }
 
     // Get from selected order (if details are loaded)
@@ -182,8 +203,9 @@ export default function SupplierInterestsPage() {
     // Get from backend order details
     const backendOrder = orderDetails[orderId];
     if (backendOrder && backendOrder.items) {
-      const totalQuantity = backendOrder.items.reduce(
-        (sum: number, item: any) => sum + item.quantity,
+      const items = backendOrder.items as Array<Record<string, unknown>>;
+      const totalQuantity = items.reduce(
+        (sum: number, item) => sum + ((item.quantity as number) || 0),
         0
       );
       return `${totalQuantity} ${t("common.quantity")}`;
