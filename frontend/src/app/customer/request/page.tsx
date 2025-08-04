@@ -117,18 +117,6 @@ export default function CustomerRequestPage() {
     }
   };
 
-  const getStatusColor = (interestedCount: number, totalCount: number) => {
-    if (interestedCount === 0) return "error";
-    if (interestedCount === totalCount) return "success";
-    return "warning";
-  };
-
-  const getStatusText = (interestedCount: number, totalCount: number) => {
-    if (interestedCount === 0) return "İlgi Yok";
-    if (interestedCount === totalCount) return "Tam İlgi";
-    return "Kısmi İlgi";
-  };
-
   const getTypeColor = (type: string) => {
     const colors: { [key: string]: string } = {
       PACKAGING: "#4caf50",
@@ -356,22 +344,6 @@ export default function CustomerRequestPage() {
                         <Typography variant="body1">
                           {formatDate(selectedOrder.createdAt)}
                         </Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="body2" color="text.secondary">
-                          Durum
-                        </Typography>
-                        <Chip
-                          label={getStatusText(
-                            selectedOrder.interestedSuppliersCount,
-                            selectedOrder.totalSuppliersCount
-                          )}
-                          color={getStatusColor(
-                            selectedOrder.interestedSuppliersCount,
-                            selectedOrder.totalSuppliersCount
-                          )}
-                          size="small"
-                        />
                       </Box>
                     </Box>
                   </Box>

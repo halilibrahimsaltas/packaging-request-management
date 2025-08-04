@@ -112,15 +112,6 @@ export default function AdminUsersPage() {
     setSelectedRoles([]);
   };
 
-  const getRoleColor = (role: string) => {
-    const colors: { [key: string]: string } = {
-      ADMIN: "#f44336",
-      CUSTOMER: "#2196f3",
-      SUPPLIER: "#4caf50",
-    };
-    return colors[role] || "#757575";
-  };
-
   const getRoleIcon = (role: string) => {
     switch (role) {
       case "ADMIN":
@@ -230,8 +221,8 @@ export default function AdminUsersPage() {
                               label={getRoleText(value)}
                               size="small"
                               sx={{
-                                backgroundColor: getRoleColor(value),
-                                color: "white",
+                                // backgroundColor removed
+                                color: "black",
                               }}
                             />
                           ))}
@@ -243,8 +234,8 @@ export default function AdminUsersPage() {
                           label="Yönetici"
                           size="small"
                           sx={{
-                            backgroundColor: getRoleColor("ADMIN"),
-                            color: "white",
+                            // backgroundColor removed
+                            color: "black",
                           }}
                         />
                       </MenuItem>
@@ -253,8 +244,8 @@ export default function AdminUsersPage() {
                           label="Müşteri"
                           size="small"
                           sx={{
-                            backgroundColor: getRoleColor("CUSTOMER"),
-                            color: "white",
+                            // backgroundColor removed
+                            color: "black",
                           }}
                         />
                       </MenuItem>
@@ -263,8 +254,8 @@ export default function AdminUsersPage() {
                           label="Tedarikçi"
                           size="small"
                           sx={{
-                            backgroundColor: getRoleColor("SUPPLIER"),
-                            color: "white",
+                            // backgroundColor removed
+                            color: "black",
                           }}
                         />
                       </MenuItem>
@@ -350,7 +341,7 @@ export default function AdminUsersPage() {
                             >
                               <Avatar
                                 sx={{
-                                  bgcolor: getRoleColor(user.role),
+                                  // bgcolor removed
                                   width: 40,
                                   height: 40,
                                 }}
@@ -390,8 +381,8 @@ export default function AdminUsersPage() {
                               size="small"
                               icon={getRoleIcon(user.role)}
                               sx={{
-                                backgroundColor: getRoleColor(user.role),
-                                color: "white",
+                                // backgroundColor removed
+                                color: "black",
                                 fontWeight: 600,
                               }}
                             />

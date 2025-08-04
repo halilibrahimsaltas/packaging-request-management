@@ -1,9 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -22,7 +32,9 @@ export class UsersController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async findAll(@Query() paginationParams: UserFilterDto): Promise<UserResponseDto[]> {
+  async findAll(
+    @Query() paginationParams: UserFilterDto,
+  ): Promise<UserResponseDto[]> {
     return this.usersService.getUsers(paginationParams);
   }
 
@@ -37,8 +49,8 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, OwnerOrRolesGuard)
   @Roles(UserRole.ADMIN)
   async update(
-    @Param('id') id: string, 
-    @Body() updateUserDto: UpdateUserDto
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
     return this.usersService.updateUser(+id, updateUserDto);
   }
@@ -46,7 +58,7 @@ export class UsersController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async remove(@Param('id') id: string): Promise<{message: string}> {
+  async remove(@Param('id') id: string): Promise<{ message: string }> {
     return this.usersService.deleteUser(+id);
   }
 }

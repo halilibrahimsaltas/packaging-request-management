@@ -164,17 +164,6 @@ export default function CustomerProductsPage() {
     router.push("/customer/orders");
   };
 
-  const getTypeColor = (type: string) => {
-    const colors: { [key: string]: string } = {
-      "Karton Kutu": "#4caf50",
-      "Plastik Ambalaj": "#2196f3",
-      "Cam Ambalaj": "#ff9800",
-      "Metal Ambalaj": "#9c27b0",
-      "Kağıt Ambalaj": "#795548",
-    };
-    return colors[type] || "#757575";
-  };
-
   const hasItemsInCart = getTotalItems() > 0;
 
   return (
@@ -251,8 +240,7 @@ export default function CustomerProductsPage() {
                               label={value}
                               size="small"
                               sx={{
-                                backgroundColor: getTypeColor(value),
-                                color: "white",
+                                color: "black",
                               }}
                             />
                           ))}
@@ -265,8 +253,7 @@ export default function CustomerProductsPage() {
                             label={type}
                             size="small"
                             sx={{
-                              backgroundColor: getTypeColor(type),
-                              color: "white",
+                              color: "black",
                             }}
                           />
                         </MenuItem>
@@ -390,8 +377,7 @@ export default function CustomerProductsPage() {
                                 label={product.type}
                                 size="small"
                                 sx={{
-                                  backgroundColor: getTypeColor(product.type),
-                                  color: "white",
+                                  color: "black",
                                   fontWeight: 600,
                                 }}
                               />

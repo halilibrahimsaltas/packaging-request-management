@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+  Query,
+} from '@nestjs/common';
 import { SupplierInterestsService } from './supplier-interests.service';
 import { CreateSupplierInterestDto } from './dto/create-supplier-interest.dto';
-import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -11,13 +22,21 @@ import type { PaginationParams } from '../common/interfaces/pagination.interface
 @Controller('supplier-interests')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class SupplierInterestsController {
-  constructor(private readonly supplierInterestsService: SupplierInterestsService) {}
+  constructor(
+    private readonly supplierInterestsService: SupplierInterestsService,
+  ) {}
 
   @Post()
   @Roles(UserRole.SUPPLIER)
-  create(@Body() createSupplierInterestDto: CreateSupplierInterestDto, @Request() req: any) {
-    const supplierId = req.user.id; 
-    return this.supplierInterestsService.create(createSupplierInterestDto, supplierId);
+  create(
+    @Body() createSupplierInterestDto: CreateSupplierInterestDto,
+    @Request() req: any,
+  ) {
+    const supplierId = req.user.id;
+    return this.supplierInterestsService.create(
+      createSupplierInterestDto,
+      supplierId,
+    );
   }
 
   // get orders by product types
@@ -26,11 +45,15 @@ export class SupplierInterestsController {
   async findOrdersByProductTypes(
     @Request() req: any,
     @Query('productTypes') productTypes: string,
-    @Query() paginationParams: PaginationParams
+    @Query() paginationParams: PaginationParams,
   ) {
     const supplierId = req.user.id;
     const productTypesArray = productTypes ? productTypes.split(',') : [];
-    return this.supplierInterestsService.findOrdersByProductTypes(supplierId, productTypesArray, paginationParams);
+    return this.supplierInterestsService.findOrdersByProductTypes(
+      supplierId,
+      productTypesArray,
+      paginationParams,
+    );
   }
 
   // get order detail for supplier
@@ -38,10 +61,13 @@ export class SupplierInterestsController {
   @Roles(UserRole.SUPPLIER)
   async findOrderDetailForSupplier(
     @Request() req: any,
-    @Param('orderId') orderId: string
+    @Param('orderId') orderId: string,
   ) {
     const supplierId = req.user.id;
-    return this.supplierInterestsService.findOrderDetailForSupplier(supplierId, +orderId);
+    return this.supplierInterestsService.findOrderDetailForSupplier(
+      supplierId,
+      +orderId,
+    );
   }
 
   // update supplier interest status
@@ -50,10 +76,15 @@ export class SupplierInterestsController {
   async toggleInterest(
     @Request() req: any,
     @Param('orderId') orderId: string,
-    @Body() body: { isInterested: boolean; notes?: string }
+    @Body() body: { isInterested: boolean; notes?: string },
   ) {
     const supplierId = req.user.id;
-    return this.supplierInterestsService.toggleInterest(supplierId, +orderId, body.isInterested, body.notes);
+    return this.supplierInterestsService.toggleInterest(
+      supplierId,
+      +orderId,
+      body.isInterested,
+      body.notes,
+    );
   }
 
   @Get()
@@ -79,11 +110,11 @@ export class SupplierInterestsController {
   @Roles(UserRole.SUPPLIER)
   findMyInterests(@Request() req: any) {
     const supplierId = req.user.id;
-    
+
     if (!supplierId) {
       throw new Error('No supplier ID found in JWT token');
     }
-    
+
     return this.supplierInterestsService.findMyInterests(supplierId);
   }
 
@@ -92,8 +123,6 @@ export class SupplierInterestsController {
   findOne(@Param('id') id: string) {
     return this.supplierInterestsService.findOne(+id);
   }
-
-
 
   @Delete(':id')
   @Roles(UserRole.ADMIN)

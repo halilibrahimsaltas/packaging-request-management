@@ -1,10 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
-import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
@@ -16,17 +26,23 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() createProductDto: CreateProductDto): Promise<ProductResponseDto> {
+  async create(
+    @Body() createProductDto: CreateProductDto,
+  ): Promise<ProductResponseDto> {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
-  async findAll(@Query() paginationParams: PaginationParams): Promise<ProductResponseDto[]> {
+  async findAll(
+    @Query() paginationParams: PaginationParams,
+  ): Promise<ProductResponseDto[]> {
     return this.productsService.findAll(paginationParams);
   }
 
   @Get('active')
-  async findActiveProducts(@Query() paginationParams: PaginationParams): Promise<ProductResponseDto[]> {
+  async findActiveProducts(
+    @Query() paginationParams: PaginationParams,
+  ): Promise<ProductResponseDto[]> {
     return this.productsService.findActiveProducts(paginationParams);
   }
 
@@ -44,12 +60,11 @@ export class ProductsController {
     return this.productsService.getActiveProductTypesForCustomers();
   }
 
-
   // get products by type
   @Get('type/:type')
   async findByType(
     @Param('type') type: string,
-    @Query() paginationParams: PaginationParams
+    @Query() paginationParams: PaginationParams,
   ): Promise<ProductResponseDto[]> {
     return this.productsService.findByType(type, paginationParams);
   }
@@ -63,8 +78,8 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async update(
-    @Param('id') id: string, 
-    @Body() updateProductDto: UpdateProductDto
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
   ): Promise<ProductResponseDto> {
     return this.productsService.update(+id, updateProductDto);
   }

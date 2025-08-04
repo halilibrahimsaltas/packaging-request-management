@@ -10,8 +10,6 @@ import {
   Alert,
   InputAdornment,
   IconButton,
-  Divider,
-  Chip,
   Fade,
   Slide,
 } from "@mui/material";
@@ -116,68 +114,7 @@ export default function LoginPage() {
     }
   };
 
-  const quickLogin = async (
-    role: UserRole,
-    email: string,
-    password: string
-  ) => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      await login(email, password);
-
-      switch (role) {
-        case UserRole.ADMIN:
-          router.push("/admin");
-          break;
-        case UserRole.CUSTOMER:
-          router.push("/customer");
-          break;
-        case UserRole.SUPPLIER:
-          router.push("/supplier");
-          break;
-      }
-    } catch (error: any) {
-      let errorMessage = "Giriş sırasında bir hata oluştu";
-
-      if (error.message) {
-        if (error.message.includes("HTTP error!")) {
-          try {
-            const errorMatch = error.message.match(/\{.*\}/);
-            if (errorMatch) {
-              const errorData = JSON.parse(errorMatch[0]);
-              errorMessage =
-                errorData.message || "Giriş sırasında bir hata oluştu";
-            }
-          } catch (parseError) {
-            errorMessage = error.message;
-          }
-        } else if (error.message.includes("Invalid credentials")) {
-          errorMessage = "E-posta veya şifre hatalı";
-        } else if (error.message.includes("User not found")) {
-          errorMessage = "Kullanıcı bulunamadı";
-        } else if (error.message.includes("Invalid email")) {
-          errorMessage = "Geçersiz e-posta adresi";
-        } else if (error.message.includes("Password is required")) {
-          errorMessage = "Şifre gereklidir";
-        } else if (error.message.includes("Email is required")) {
-          errorMessage = "E-posta adresi gereklidir";
-        } else if (error.message.includes("Network Error")) {
-          errorMessage =
-            "Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin";
-        } else if (error.message.includes("timeout")) {
-          errorMessage = "Bağlantı zaman aşımı. Lütfen tekrar deneyin";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ...demo login function removed...
 
   return (
     <Box
@@ -501,110 +438,7 @@ export default function LoginPage() {
                 </Button>
               </form>
 
-              <Divider sx={{ my: 4 }}>
-                <Chip
-                  label={t("common.or")}
-                  variant="outlined"
-                  sx={{
-                    backgroundColor: "rgba(255,255,255,0.8)",
-                    borderColor: "rgba(0,0,0,0.1)",
-                  }}
-                />
-              </Divider>
-
-              {/* Quick Login Buttons */}
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  textAlign="center"
-                  mb={2}
-                  sx={{ fontWeight: 500 }}
-                >
-                  {t("auth.demo.quickLogin")}
-                </Typography>
-
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() =>
-                    quickLogin(
-                      UserRole.ADMIN,
-                      "joe.doe3@example.com",
-                      "password123"
-                    )
-                  }
-                  disabled={isLoading}
-                  startIcon={<Business />}
-                  sx={{
-                    justifyContent: "flex-start",
-                    py: 1.5,
-                    borderRadius: 2,
-                    borderColor: "#667eea",
-                    color: "#667eea",
-                    "&:hover": {
-                      backgroundColor: "rgba(102, 126, 234, 0.1)",
-                      borderColor: "#5a6fd8",
-                    },
-                  }}
-                >
-                  {t("auth.demo.admin")}
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() =>
-                    quickLogin(
-                      UserRole.CUSTOMER,
-                      "joe.doe2@example.com",
-                      "password123"
-                    )
-                  }
-                  disabled={isLoading}
-                  startIcon={<Person />}
-                  sx={{
-                    justifyContent: "flex-start",
-                    py: 1.5,
-                    borderRadius: 2,
-                    borderColor: "#f093fb",
-                    color: "#f093fb",
-                    "&:hover": {
-                      backgroundColor: "rgba(240, 147, 251, 0.1)",
-                      borderColor: "#e085e8",
-                    },
-                  }}
-                >
-                  {t("auth.demo.customer")}
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() =>
-                    quickLogin(
-                      UserRole.SUPPLIER,
-                      "joe.doe4@example.com",
-                      "password123"
-                    )
-                  }
-                  disabled={isLoading}
-                  startIcon={<Factory />}
-                  sx={{
-                    justifyContent: "flex-start",
-                    py: 1.5,
-                    borderRadius: 2,
-                    borderColor: "#4facfe",
-                    color: "#4facfe",
-                    "&:hover": {
-                      backgroundColor: "rgba(79, 172, 254, 0.1)",
-                      borderColor: "#3e9be8",
-                    },
-                  }}
-                >
-                  {t("auth.demo.supplier")}
-                </Button>
-              </Box>
+              {/* Demo login buttons removed */}
 
               <Box textAlign="center" mt={4}>
                 <Typography variant="body2" color="text.secondary">

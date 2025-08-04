@@ -213,17 +213,6 @@ export default function AdminProductsPage() {
     setEditDialogOpen(true);
   };
 
-  const getTypeColor = (type: string) => {
-    const colors: { [key: string]: string } = {
-      "Karton Kutu": "#4caf50",
-      "Plastik Ambalaj": "#2196f3",
-      "Cam Ambalaj": "#ff9800",
-      "Metal Ambalaj": "#9c27b0",
-      "Kağıt Ambalaj": "#795548",
-    };
-    return colors[type] || "#757575";
-  };
-
   return (
     <AuthGuard requiredRole={UserRole.ADMIN}>
       <Box sx={{ minHeight: "100vh", backgroundColor: "#f5f7fa" }}>
@@ -298,8 +287,7 @@ export default function AdminProductsPage() {
                               label={value}
                               size="small"
                               sx={{
-                                backgroundColor: getTypeColor(value),
-                                color: "white",
+                                color: "black",
                               }}
                             />
                           ))}
@@ -312,8 +300,7 @@ export default function AdminProductsPage() {
                             label={type}
                             size="small"
                             sx={{
-                              backgroundColor: getTypeColor(type),
-                              color: "white",
+                              color: "black",
                             }}
                           />
                         </MenuItem>
@@ -428,8 +415,7 @@ export default function AdminProductsPage() {
                               label={product.type}
                               size="small"
                               sx={{
-                                backgroundColor: getTypeColor(product.type),
-                                color: "white",
+                                color: "black",
                                 fontWeight: 600,
                               }}
                             />

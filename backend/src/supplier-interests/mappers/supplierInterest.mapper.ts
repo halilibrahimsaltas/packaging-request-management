@@ -3,30 +3,32 @@ import { Order } from '../../orders/entities/order.entity';
 
 export class SupplierInterestMapper {
   /**
-   * Masks supplier name (Ah*** Yı*** format)
+   * Masks supplier name
    */
   static maskSupplierName(username: string): string {
     if (!username || username.length < 2) return username;
-    
+
     // Masked name logic
     const parts = username.split(' ');
     if (parts.length >= 2) {
       const firstName = parts[0];
       const lastName = parts[parts.length - 1];
-      
-      const maskedFirstName = firstName.length > 2 
-        ? firstName.substring(0, 2) + '***' 
-        : firstName + '***';
-      
-      const maskedLastName = lastName.length > 2 
-        ? lastName.substring(0, 2) + '***' 
-        : lastName + '***';
-      
+
+      const maskedFirstName =
+        firstName.length > 2
+          ? firstName.substring(0, 2) + '***'
+          : firstName + '***';
+
+      const maskedLastName =
+        lastName.length > 2
+          ? lastName.substring(0, 2) + '***'
+          : lastName + '***';
+
       return `${maskedFirstName} ${maskedLastName}`;
     }
-    
-    return username.length > 2 
-      ? username.substring(0, 2) + '***' 
+
+    return username.length > 2
+      ? username.substring(0, 2) + '***'
       : username + '***';
   }
 
@@ -47,7 +49,7 @@ export class SupplierInterestMapper {
           id: interest.order.customer.id,
           username: interest.order.customer.username,
         },
-        items: interest.order.items.map(item => ({
+        items: interest.order.items.map((item) => ({
           id: item.id,
           product: {
             id: item.product.id,
@@ -69,7 +71,7 @@ export class SupplierInterestMapper {
    * Maps array of SupplierInterest entities to response DTOs
    */
   static toResponseArray(interests: SupplierInterest[]) {
-    return interests.map(interest => this.toResponse(interest));
+    return interests.map((interest) => this.toResponse(interest));
   }
 
   /**
@@ -82,7 +84,7 @@ export class SupplierInterestMapper {
         id: order.customer.id,
         username: order.customer.username,
       },
-      items: order.items.map(item => ({
+      items: order.items.map((item) => ({
         id: item.id,
         product: {
           id: item.product.id,
@@ -92,22 +94,27 @@ export class SupplierInterestMapper {
         quantity: item.quantity,
       })),
       createdAt: order.createdAt,
-      supplierInterest: supplierInterest ? {
-        id: supplierInterest.id,
-        isInterested: supplierInterest.isInterested,
-        notes: supplierInterest.notes,
-        createdAt: supplierInterest.createdAt,
-        updatedAt: supplierInterest.updatedAt,
-      } : null,
+      supplierInterest: supplierInterest
+        ? {
+            id: supplierInterest.id,
+            isInterested: supplierInterest.isInterested,
+            notes: supplierInterest.notes,
+            createdAt: supplierInterest.createdAt,
+            updatedAt: supplierInterest.updatedAt,
+          }
+        : null,
     };
   }
 
   /**
    * Maps array of Order entities with supplier interest to DTOs
    */
-  static toOrderWithSupplierInterestArray(orders: Order[], supplierInterests: any[]) {
-    return orders.map(order => {
-      const interest = supplierInterests.find(si => si.orderId === order.id);
+  static toOrderWithSupplierInterestArray(
+    orders: Order[],
+    supplierInterests: any[],
+  ) {
+    return orders.map((order) => {
+      const interest = supplierInterests.find((si) => si.orderId === order.id);
       return this.toOrderWithSupplierInterest(order, interest);
     });
   }

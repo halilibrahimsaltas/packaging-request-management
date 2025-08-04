@@ -22,7 +22,7 @@ import {
   mapOrderWithSupplierInterestsToDto,
 } from './mappers/order.mapper';
 import type { PaginationParams } from '../common/interfaces/pagination.interface';
-import { JwtAuthGuard } from '../auth/roles/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { OwnerOrRolesGuard } from '../auth/roles/owner-or-roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
