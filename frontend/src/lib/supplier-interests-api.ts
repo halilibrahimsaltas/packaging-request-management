@@ -114,9 +114,9 @@ export const supplierInterestsApi = {
     orderId: number,
     isInterested: boolean,
     notes?: string
-  ): Promise<any> => {
+  ): Promise<Record<string, unknown>> => {
     try {
-      const response = await apiRequest<ApiResponse<any>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>>>(
         `/supplier-interests/orders/${orderId}/toggle-interest`,
         {
           method: "POST",
@@ -133,15 +133,17 @@ export const supplierInterestsApi = {
   // Admin: Get all supplier interests
   getAllSupplierInterests: async (
     params?: PaginationParams
-  ): Promise<any[]> => {
+  ): Promise<Record<string, unknown>[]> => {
     try {
       const queryParams = params
-        ? new URLSearchParams(params as any).toString()
+        ? new URLSearchParams(params as Record<string, string>).toString()
         : "";
       const url = queryParams
         ? `/supplier-interests?${queryParams}`
         : "/supplier-interests";
-      const response = await apiRequest<ApiResponse<any[]>>(url);
+      const response = await apiRequest<ApiResponse<Record<string, unknown>[]>>(
+        url
+      );
       return response.data;
     } catch (error) {
       console.error("getAllSupplierInterests error:", error);
@@ -150,9 +152,11 @@ export const supplierInterestsApi = {
   },
 
   // Get supplier interests by order
-  getSupplierInterestsByOrder: async (orderId: number): Promise<any[]> => {
+  getSupplierInterestsByOrder: async (
+    orderId: number
+  ): Promise<Record<string, unknown>[]> => {
     try {
-      const response = await apiRequest<ApiResponse<any[]>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>[]>>(
         `/supplier-interests/order/${orderId}`
       );
       return response.data;
@@ -165,9 +169,9 @@ export const supplierInterestsApi = {
   // Admin: Get supplier interests by supplier
   getSupplierInterestsBySupplier: async (
     supplierId: number
-  ): Promise<any[]> => {
+  ): Promise<Record<string, unknown>[]> => {
     try {
-      const response = await apiRequest<ApiResponse<any[]>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>[]>>(
         `/supplier-interests/supplier/${supplierId}`
       );
       return response.data;
@@ -178,9 +182,9 @@ export const supplierInterestsApi = {
   },
 
   // Admin: Get specific supplier interest
-  getSupplierInterest: async (id: number): Promise<any> => {
+  getSupplierInterest: async (id: number): Promise<Record<string, unknown>> => {
     try {
-      const response = await apiRequest<ApiResponse<any>>(
+      const response = await apiRequest<ApiResponse<Record<string, unknown>>>(
         `/supplier-interests/${id}`
       );
       return response.data;

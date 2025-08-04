@@ -22,7 +22,6 @@ import {
   Email,
   Lock,
   Person,
-  Business,
   Factory,
   CheckCircle,
   PersonAdd,
@@ -86,10 +85,10 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/auth/login");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = "Kayıt sırasında bir hata oluştu";
 
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         if (error.message.includes("HTTP error!")) {
           try {
             const errorMatch = error.message.match(/\{.*\}/);
@@ -98,7 +97,7 @@ export default function RegisterPage() {
               errorMessage =
                 errorData.message || "Kayıt sırasında bir hata oluştu";
             }
-          } catch (parseError) {
+          } catch {
             errorMessage = error.message;
           }
         } else if (error.message.includes("User already exists")) {

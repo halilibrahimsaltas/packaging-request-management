@@ -32,7 +32,6 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLoading } from "@/context/LoadingContext";
 import { UserRole } from "@/types/role.type";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -76,10 +75,10 @@ export default function LoginPage() {
         default:
           router.push("/");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = "Giriş sırasında bir hata oluştu";
 
-      if (error.message) {
+      if (error instanceof Error && error.message) {
         if (error.message.includes("HTTP error!")) {
           try {
             const errorMatch = error.message.match(/\{.*\}/);
@@ -88,7 +87,7 @@ export default function LoginPage() {
               errorMessage =
                 errorData.message || "Giriş sırasında bir hata oluştu";
             }
-          } catch (parseError) {
+          } catch {
             errorMessage = error.message;
           }
         } else if (error.message.includes("Invalid credentials")) {
