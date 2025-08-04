@@ -2,6 +2,8 @@
 
 A full-stack application to manage packaging requests and supplier responses, designed for customers, suppliers, and administrators.
 
+🔗 Live Demo: [packaging-request-management](https://packaging-request-management-i8cd.vercel.app)
+
 ## 🚀 Features
 
 ### 👤 Customer Module
@@ -39,21 +41,16 @@ The application includes comprehensive screenshots demonstrating all major featu
 # Project Presentation
 
 <!-- Visual frame for presentation images -->
-<table align="center">
-  <tr>
-    <td><img src="screenshot/login.png" alt="Presentation 1" width="220"/></td>
-    <td><img src="screenshot/register.png" alt="Presentation 2" width="220"/></td>
-  </tr>
-  <tr>
-    <td><img src="screenshot/railway deploy.png" alt="Presentation 5" width="220"/></td>
-    <td><img src="screenshot/admin talep incle.png" alt="Presentation 7" width="220"/></td>
-  </tr>
-  <tr>
-    <td><img src="screenshot/filter.png" alt="Presentation 9" width="220"/></td>
-    <td><img src="screenshot/customer product.png" alt="Presentation 12" width="220"/></td>
-  </tr>
+<img width="1904" height="920" alt="Image" src="https://github.com/user-attachments/assets/25712057-d72b-4af2-950c-ef9983e59cc3" />
 
-</table>
+<img width="1915" height="919" alt="Image" src="https://github.com/user-attachments/assets/f0a59f2e-5c4c-484e-95f6-b1232c761cce" />
+
+<img width="1904" height="913" alt="Image" src="https://github.com/user-attachments/assets/a56c88a8-ff95-4bb8-ba1f-9fcffe3e5107" />
+
+<img width="1909" height="917" alt="Image" src="https://github.com/user-attachments/assets/b50e8774-ff8f-4fbf-bb4d-9761521c7b85" />
+
+<img width="1882" height="917" alt="Image" src="https://github.com/user-attachments/assets/3b478a9e-5980-4446-bda0-7760c07b112b" />
+
 
 ---
 
