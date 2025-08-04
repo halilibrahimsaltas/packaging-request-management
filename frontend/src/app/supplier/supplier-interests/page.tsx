@@ -23,7 +23,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider,
 } from "@mui/material";
 import { Assignment, Visibility, Person } from "@mui/icons-material";
 import { useAuth } from "@/context/AuthContext";
@@ -33,14 +32,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/Toast";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
-import {
-  Order,
-  OrderItem,
-  SupplierInterest,
-  BackendSupplierInterestResponse,
-  BackendOrderDetailResponse,
-} from "@/types/order.types";
-import { ordersApi, supplierInterestsApi } from "@/lib";
+import { Order, SupplierInterest } from "@/types/order.types";
+import { supplierInterestsApi } from "@/lib";
 
 export default function SupplierInterestsPage() {
   const { user } = useAuth();
@@ -71,24 +64,31 @@ export default function SupplierInterestsPage() {
 
         // Transform backend data to match frontend structure
         const transformedInterests: SupplierInterest[] = supplierInterests.map(
-          (interest: BackendSupplierInterestResponse) => {
+          (interest: Record<string, unknown>) => {
             console.log("Processing interest:", interest);
 
             // Store order details for use in display functions
             setOrderDetails((prev) => ({
               ...prev,
-              [interest.order.id]: interest.order,
+              [(interest.order as Record<string, unknown>)?.id as number]:
+                interest.order,
             }));
 
             return {
-              id: interest.id,
-              orderId: interest.order.id,
-              supplierId: interest.supplier.id,
-              supplierName: interest.supplier.username,
-              isInterested: interest.isInterested,
-              notes: interest.notes || "",
-              createdAt: interest.createdAt,
-              updatedAt: interest.updatedAt,
+              id: interest.id as number,
+              orderId:
+                ((interest.order as Record<string, unknown>)?.id as number) ||
+                0,
+              supplierId:
+                ((interest.supplier as Record<string, unknown>)
+                  ?.id as number) || 0,
+              supplierName:
+                ((interest.supplier as Record<string, unknown>)
+                  ?.username as string) || "Unknown Supplier",
+              isInterested: interest.isInterested as boolean,
+              notes: (interest.notes as string) || "",
+              createdAt: interest.createdAt as string,
+              updatedAt: interest.updatedAt as string,
             };
           }
         );
@@ -118,29 +118,22 @@ export default function SupplierInterestsPage() {
       console.log("Loading order details for orderId:", interest.orderId);
 
       // Get order details from backend
-      const orderDetails =
-        (await supplierInterestsApi.getOrderDetailForSupplier(
-          interest.orderId
-        )) as unknown as BackendOrderDetailResponse;
+      const orderDetails = await supplierInterestsApi.getOrderDetailForSupplier(
+        interest.orderId
+      );
 
       console.log("Order details received:", orderDetails);
 
       // Transform backend order data to match frontend structure
       const transformedOrder: Order = {
         id: orderDetails.id,
-        customerId: orderDetails.customer.id,
-        customerName: orderDetails.customer.username,
+        customerId: orderDetails.customerId || 0,
+        customerName: orderDetails.customerName || "Unknown Customer",
         createdAt: orderDetails.createdAt,
-        items: orderDetails.items.map((item) => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          productType: item.product.type,
-          quantity: item.quantity,
-        })),
-        supplierInterests: [],
-        interestedSuppliersCount: 0,
-        totalSuppliersCount: 0,
+        items: orderDetails.items || [],
+        supplierInterests: orderDetails.supplierInterests || [],
+        interestedSuppliersCount: orderDetails.interestedSuppliersCount || 0,
+        totalSuppliersCount: orderDetails.totalSuppliersCount || 0,
       };
 
       console.log("Transformed order:", transformedOrder);

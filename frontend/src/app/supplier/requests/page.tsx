@@ -84,39 +84,19 @@ export default function SupplierRequestsPage() {
         }
 
         // Transform backend data to match frontend structure
-        const transformedOrders: Order[] = allOrders.map(
-          (order: Record<string, unknown>) => {
-            console.log("Processing order:", order);
-            return {
-              id: order.id as number,
-              customerId:
-                ((order.customer as Record<string, unknown>)?.id as number) ||
-                0,
-              customerName:
-                ((order.customer as Record<string, unknown>)
-                  ?.username as string) || "Unknown Customer",
-              createdAt: order.createdAt as string,
-              items: ((order.items as Record<string, unknown>[]) || []).map(
-                (item: Record<string, unknown>) => ({
-                  id: item.id as number,
-                  productId:
-                    ((item.product as Record<string, unknown>)?.id as number) ||
-                    0,
-                  productName:
-                    ((item.product as Record<string, unknown>)
-                      ?.name as string) || "Unknown Product",
-                  productType:
-                    ((item.product as Record<string, unknown>)
-                      ?.type as string) || "Unknown Type",
-                  quantity: (item.quantity as number) || 0,
-                })
-              ),
-              supplierInterests: [],
-              interestedSuppliersCount: 0,
-              totalSuppliersCount: 0,
-            };
-          }
-        );
+        const transformedOrders: Order[] = allOrders.map((order) => {
+          console.log("Processing order:", order);
+          return {
+            id: order.id,
+            customerId: order.customerId || 0,
+            customerName: order.customerName || "Unknown Customer",
+            createdAt: order.createdAt,
+            items: order.items || [],
+            supplierInterests: order.supplierInterests || [],
+            interestedSuppliersCount: order.interestedSuppliersCount || 0,
+            totalSuppliersCount: order.totalSuppliersCount || 0,
+          };
+        });
 
         console.log("Transformed orders:", transformedOrders);
         setOrders(transformedOrders);
@@ -169,7 +149,7 @@ export default function SupplierRequestsPage() {
     setFilteredOrders(filtered);
   }, [orders, searchTerm, selectedTypes]);
 
-  const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTypeChange = (event: any) => {
     const value = event.target.value;
     setSelectedTypes(typeof value === "string" ? value.split(",") : value);
   };
@@ -184,39 +164,22 @@ export default function SupplierRequestsPage() {
       console.log("Loading details for order:", order.id);
 
       // Get order detail for supplier from backend
-      const orderDetail = (await supplierInterestsApi.getOrderDetailForSupplier(
+      const orderDetail = await supplierInterestsApi.getOrderDetailForSupplier(
         order.id
-      )) as Record<string, unknown>;
+      );
 
       console.log("Order detail received:", orderDetail);
 
       // Transform backend order data to match frontend structure
       const transformedOrder: Order = {
-        id: orderDetail.id as number,
-        customerId:
-          ((orderDetail.customer as Record<string, unknown>)?.id as number) ||
-          0,
-        customerName:
-          ((orderDetail.customer as Record<string, unknown>)
-            ?.username as string) || "Unknown Customer",
-        createdAt: orderDetail.createdAt as string,
-        items: ((orderDetail.items as Record<string, unknown>[]) || []).map(
-          (item: Record<string, unknown>) => ({
-            id: item.id as number,
-            productId:
-              ((item.product as Record<string, unknown>)?.id as number) || 0,
-            productName:
-              ((item.product as Record<string, unknown>)?.name as string) ||
-              "Unknown Product",
-            productType:
-              ((item.product as Record<string, unknown>)?.type as string) ||
-              "Unknown Type",
-            quantity: (item.quantity as number) || 0,
-          })
-        ),
-        supplierInterests: [],
-        interestedSuppliersCount: 0,
-        totalSuppliersCount: 0,
+        id: orderDetail.id,
+        customerId: orderDetail.customerId || 0,
+        customerName: orderDetail.customerName || "Unknown Customer",
+        createdAt: orderDetail.createdAt,
+        items: orderDetail.items || [],
+        supplierInterests: orderDetail.supplierInterests || [],
+        interestedSuppliersCount: orderDetail.interestedSuppliersCount || 0,
+        totalSuppliersCount: orderDetail.totalSuppliersCount || 0,
       };
 
       console.log("Transformed order detail:", transformedOrder);
@@ -248,36 +211,16 @@ export default function SupplierRequestsPage() {
             []
           );
           if (Array.isArray(allOrders)) {
-            const transformedOrders: Order[] = allOrders.map(
-              (order: Record<string, unknown>) => ({
-                id: order.id as number,
-                customerId:
-                  ((order.customer as Record<string, unknown>)?.id as number) ||
-                  0,
-                customerName:
-                  ((order.customer as Record<string, unknown>)
-                    ?.username as string) || "Unknown Customer",
-                createdAt: order.createdAt as string,
-                items: ((order.items as Record<string, unknown>[]) || []).map(
-                  (item: Record<string, unknown>) => ({
-                    id: item.id as number,
-                    productId:
-                      ((item.product as Record<string, unknown>)
-                        ?.id as number) || 0,
-                    productName:
-                      ((item.product as Record<string, unknown>)
-                        ?.name as string) || "Unknown Product",
-                    productType:
-                      ((item.product as Record<string, unknown>)
-                        ?.type as string) || "Unknown Type",
-                    quantity: (item.quantity as number) || 0,
-                  })
-                ),
-                supplierInterests: [],
-                interestedSuppliersCount: 0,
-                totalSuppliersCount: 0,
-              })
-            );
+            const transformedOrders: Order[] = allOrders.map((order) => ({
+              id: order.id,
+              customerId: order.customerId || 0,
+              customerName: order.customerName || "Unknown Customer",
+              createdAt: order.createdAt,
+              items: order.items || [],
+              supplierInterests: order.supplierInterests || [],
+              interestedSuppliersCount: order.interestedSuppliersCount || 0,
+              totalSuppliersCount: order.totalSuppliersCount || 0,
+            }));
             setOrders(transformedOrders);
             setFilteredOrders(transformedOrders);
           }
