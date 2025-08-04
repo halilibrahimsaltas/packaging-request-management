@@ -1,8 +1,13 @@
 # Packaging Request Management
 
 A full-stack application to manage packaging requests and supplier responses, designed for customers, suppliers, and administrators.
+The frontend of this project is deployed on Vercel, while the backend and PostgreSQL database are hosted on Railway.
 
 🔗 Live Demo: [packaging-request-management](https://packaging-request-management-i8cd.vercel.app)
+
+## 🎬 Demo Video
+
+[![Watch the video](https://i.sstatic.net/Vp2cE.png)](https://youtu.be/HVldvkwuOeQ)
 
 ## 🚀 Features
 
@@ -60,7 +65,7 @@ All screenshots are located in the `screenshots/` directory and can be accessed 
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, Material-UI, React Context, JWT Authentication, Toast Notifications
 - **Backend**: NestJS, TypeORM, JWT Authentication
-- **Database**: Relational DB or JSON mock data
+- **Database**: Relational DB(PostgreSQL)
 
 ## 📋 Requirements
 
